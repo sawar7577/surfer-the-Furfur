@@ -7,15 +7,25 @@ class Track {
       this.texture = loadTexture(gl, "./rails.png")
 
       this.vertices = [
-        -this.length/2, 0, -this.width/2,
         -this.length/2, 0,  this.width/2,
-         this.length/2, 0, -this.width/2,
          this.length/2, 0,  this.width/2,
+         this.length/2, 0, -this.width/2,
+        -this.length/2, 0, -this.width/2,
       ];
+
+    //   this.vertices = [
+    //     -this.length/2, 0,  this.width/2,
+    //     this.length/2, 0,  this.width/2,
+    //     this.length/2, 0, -this.width/2,
+
+    //     this.length/2, 0, -this.width/2,
+    //     -this.length/2, 0, -this.width/2,
+    //     -this.length/2, 0,  this.width/2,
+    //   ]
   
       this.indices = [
-        0, 1, 3,
-        3, 2, 1,
+        0, 1, 2,
+        2, 3, 0,
       ];
   
       this.textureCoordinates = [
@@ -32,7 +42,7 @@ class Track {
 
       this.indexBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.indices), gl.STATIC_DRAW);
+      gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
 
       this.textureBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
@@ -94,7 +104,7 @@ class Track {
             gl.enableVertexAttribArray(
                 programInfo.attribLocations.vertexPosition);
         }
-
+        
         {
             const num = 2; // every coordinate composed of 2 values
             const type = gl.FLOAT; // the data in the buffer is 32 bit float
@@ -112,24 +122,24 @@ class Track {
                 gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
             }
             
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
             
             // const modelMatrix = mat4.create();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
             gl.useProgram(programInfo.program);
-        
-
-        gl.uniformMatrix4fv(
-            programInfo.uniformLocations.projectionMatrix,
+            
+            
+            gl.uniformMatrix4fv(
+                programInfo.uniformLocations.projectionMatrix,
             false,
             projectionMatrix);
-       
-        gl.uniformMatrix4fv(
-            programInfo.uniformLocations.viewMatrix,
+            
+            gl.uniformMatrix4fv(
+                programInfo.uniformLocations.viewMatrix,
             false,
             viewMatrix);
 
-        gl.uniformMatrix4fv(
-            programInfo.uniformLocations.modelMatrix,
+            gl.uniformMatrix4fv(
+                programInfo.uniformLocations.modelMatrix,
             false,
             modelMatrix);
 
@@ -141,10 +151,10 @@ class Track {
 
 
         {
-            const vertexcount = parseInt(this.vertexCount);
+            const vertexcount = 6;
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
-            gl.drawElements(gl.TRIANGLES, vertexcount, type, offset);
+            gl.drawElements(gl.TRIANGLES, this.indices.length, type, offset);
         }
     }
   }
