@@ -6,27 +6,30 @@ class Track {
       this.vertexCount = 4
       this.texture = loadTexture(gl, "./rails.png")
 
-      this.vertices = [
-        -this.length/2, 0,  this.width/2,
-         this.length/2, 0,  this.width/2,
-         this.length/2, 0, -this.width/2,
-        -this.length/2, 0, -this.width/2,
-      ];
+      // this.vertices = [
+      //   -this.length/2, 0,  this.width/2,
+      //    this.length/2, 0,  this.width/2,
+      //    this.length/2, 0, -this.width/2,
+      //   -this.length/2, 0, -this.width/2,
+      // ];
+  
+    this.vertices = [
+        -this.length/2.0, 0.0,  this.width/2.0,
+        this.length/2.0, 0.0,  this.width/2.0,
+        this.length/2.0, 0.0, -this.width/2.0,
 
-    //   this.vertices = [
-    //     -this.length/2, 0,  this.width/2,
-    //     this.length/2, 0,  this.width/2,
-    //     this.length/2, 0, -this.width/2,
-
-    //     this.length/2, 0, -this.width/2,
-    //     -this.length/2, 0, -this.width/2,
-    //     -this.length/2, 0,  this.width/2,
-    //   ]
+        this.length/2.0, 0.0, -this.width/2.0,
+        -this.length/2.0, 0.0, -this.width/2.0,
+        -this.length/2.0, 0.0,  this.width/2.0,
+  ];
+  console.log(this.vertices.length);
   
       this.indices = [
         0, 1, 2,
         2, 3, 0,
       ];
+
+      console.log(this.indices);
   
       this.textureCoordinates = [
         0, 0,
@@ -42,7 +45,7 @@ class Track {
 
       this.indexBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
 
       this.textureBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
@@ -69,9 +72,9 @@ class Track {
                         zNear,
                         zFar);
 
-        const eye = [0, 0, 0]
+        const eye = [0, 1, 0]
         const center = [0, 0, 0]
-        const up = [0, 1, 0]
+        const up = [0, 0, 1]
         const viewMatrix = mat4.create();
 
         mat4.lookAt(viewMatrix,
@@ -85,8 +88,8 @@ class Track {
         translate,     // matrix to translate
         this.position);
 
-        mat4.multiply(modelMatrix, modelMatrix, translate);
 
+        mat4.multiply(modelMatrix, modelMatrix, translate);
         {
             const numComponents = 3;
             const type = gl.FLOAT;
@@ -104,27 +107,26 @@ class Track {
             gl.enableVertexAttribArray(
                 programInfo.attribLocations.vertexPosition);
         }
+        // {
+            // const num = 2; // every coordinate composed of 2 values
+            // const type = gl.FLOAT; // the data in the buffer is 32 bit float
+            // const normalize = false; // don't normalize
+            // const stride = 0; // how many bytes to get from one set to the next
+            // const offset = 0; // how many bytes inside the buffer to start from
+            // gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+            // gl.vertexAttribPointer(
+            //     programInfo.attribLocations.textureCoord,
+            //     num,
+            //     type,
+            //     normalize,
+            //     stride,
+            //     offset);
+            //     gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
+            // }
         
-        {
-            const num = 2; // every coordinate composed of 2 values
-            const type = gl.FLOAT; // the data in the buffer is 32 bit float
-            const normalize = false; // don't normalize
-            const stride = 0; // how many bytes to get from one set to the next
-            const offset = 0; // how many bytes inside the buffer to start from
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-            gl.vertexAttribPointer(
-                programInfo.attribLocations.textureCoord,
-                num,
-                type,
-                normalize,
-                stride,
-                offset);
-                gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
-            }
             
             
-            // const modelMatrix = mat4.create();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+            // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
             gl.useProgram(programInfo.program);
             
             
@@ -154,7 +156,8 @@ class Track {
             const vertexcount = 6;
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
-            gl.drawElements(gl.TRIANGLES, this.indices.length, type, offset);
+            // gl.drawElements(gl.TRIANGLES, vertexcount, type, offset);
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
         }
     }
   }

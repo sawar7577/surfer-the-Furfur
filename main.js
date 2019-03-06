@@ -41,7 +41,8 @@ function main() {
     uniform sampler2D uSampler;
 
     void main(void) {
-        gl_FragColor = texture2D(uSampler, vTextureCoord);
+        gl_FragColor = vec4(0,1,0,1);
+        // gl_FragColor = texture2D(uSampler, vTextureCoord);
     }
   `;
   // Initialize a shader program; this is where all the lighting
