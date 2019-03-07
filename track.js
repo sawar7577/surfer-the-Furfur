@@ -1,41 +1,29 @@
 class Track {
-    constructor(length, width, gl) {
+    constructor(pos, length, width, gl) {
       this.length = length;
       this.width = width;
-      this.position = [0,0,0]
+      this.position = pos
       this.vertexCount = 4
       this.texture = loadTexture(gl, "./rails.png")
 
-      // this.vertices = [
-      //   -this.length/2, 0,  this.width/2,
-      //    this.length/2, 0,  this.width/2,
-      //    this.length/2, 0, -this.width/2,
-      //   -this.length/2, 0, -this.width/2,
-      // ];
-  
-    this.vertices = [
-        -this.length/2.0, 0.0,  this.width/2.0,
-        this.length/2.0, 0.0,  this.width/2.0,
-        this.length/2.0, 0.0, -this.width/2.0,
-
-        this.length/2.0, 0.0, -this.width/2.0,
-        -this.length/2.0, 0.0, -this.width/2.0,
-        -this.length/2.0, 0.0,  this.width/2.0,
-  ];
-  console.log(this.vertices.length);
+      this.vertices = [
+        -this.length/2, 0,  this.width/2,
+         this.length/2, 0,  this.width/2,
+         this.length/2, 0, -this.width/2,
+        -this.length/2, 0, -this.width/2,
+      ];
   
       this.indices = [
         0, 1, 2,
         2, 3, 0,
       ];
 
-      console.log(this.indices);
   
       this.textureCoordinates = [
-        0, 0,
         0, 1,
-        1, 0,
         1, 1,
+        1, 0,
+        0, 0,
       ];
 
 
@@ -56,31 +44,31 @@ class Track {
       this.position = [x, y, z];
     }
 
-    drawTrack(gl, programInfo) {
+    drawTrack(projectionMatrix, viewMatrix, gl, programInfo) {
 
-        const fieldOfView = 45 * Math.PI / 180;   // in radians
-        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-        const zNear = 0.1;
-        const zFar = 100.0;
-        const projectionMatrix = mat4.create();
+        // const fieldOfView = 45 * Math.PI / 180;   // in radians
+        // const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        // const zNear = 0.1;
+        // const zFar = 100.0;
+        // const projectionMatrix = mat4.create();
 
-        // note: glmatrix.js always has the first argument
-        // as the destination to receive the result.
-        mat4.perspective(projectionMatrix,
-                        fieldOfView,
-                        aspect,
-                        zNear,
-                        zFar);
+        // // note: glmatrix.js always has the first argument
+        // // as the destination to receive the result.
+        // mat4.perspective(projectionMatrix,
+        //                 fieldOfView,
+        //                 aspect,
+        //                 zNear,
+        //                 zFar);
 
-        const eye = [0, 1, 0]
-        const center = [0, 0, 0]
-        const up = [0, 0, 1]
-        const viewMatrix = mat4.create();
+        // const eye = [0, 0.1, 1]
+        // const center = [0, 0, 0]
+        // const up = [0, 1, 0]
+        // const viewMatrix = mat4.create();
 
-        mat4.lookAt(viewMatrix,
-                    eye,
-                    center,
-                    up);
+        // mat4.lookAt(viewMatrix,
+        //             eye,
+        //             center,
+        //             up);
 
         const modelMatrix = mat4.create();
         var translate = mat4.create();
@@ -107,26 +95,26 @@ class Track {
             gl.enableVertexAttribArray(
                 programInfo.attribLocations.vertexPosition);
         }
-        // {
-            // const num = 2; // every coordinate composed of 2 values
-            // const type = gl.FLOAT; // the data in the buffer is 32 bit float
-            // const normalize = false; // don't normalize
-            // const stride = 0; // how many bytes to get from one set to the next
-            // const offset = 0; // how many bytes inside the buffer to start from
-            // gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-            // gl.vertexAttribPointer(
-            //     programInfo.attribLocations.textureCoord,
-            //     num,
-            //     type,
-            //     normalize,
-            //     stride,
-            //     offset);
-            //     gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
-            // }
+        {
+            const num = 2; // every coordinate composed of 2 values
+            const type = gl.FLOAT; // the data in the buffer is 32 bit float
+            const normalize = false; // don't normalize
+            const stride = 0; // how many bytes to get from one set to the next
+            const offset = 0; // how many bytes inside the buffer to start from
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+            gl.vertexAttribPointer(
+                programInfo.attribLocations.textureCoord,
+                num,
+                type,
+                normalize,
+                stride,
+                offset);
+                gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
+            }
         
             
             
-            // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
             gl.useProgram(programInfo.program);
             
             
@@ -156,8 +144,26 @@ class Track {
             const vertexcount = 6;
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
-            // gl.drawElements(gl.TRIANGLES, vertexcount, type, offset);
-          gl.drawArrays(gl.TRIANGLES, 0, 6);
+            gl.drawElements(gl.TRIANGLES, vertexcount, type, offset);
+          // gl.drawArrays(gl.TRIANGLES, 0, 6);
         }
+    }
+  };
+
+
+  class RailTracks {
+    constructor(gl){
+      // this.position = pos;
+      this.tracks = [];
+      for(let i = 0 ; i < 20 ; i+=1) {
+        this.tracks.push(new Track([ -0.1, 0, 0.1*i], 0.1, 0.1, gl));
+        this.tracks.push(new Track([    0, 0, 0.1*i], 0.1, 0.1, gl));
+        this.tracks.push(new Track([  0.1, 0, 0.1*i], 0.1, 0.1, gl));
+      }
+    }
+    draw(projectionMatrix, viewMatrix, gl, programInfo) {
+      for(let i = 0 ; i < this.tracks.length ; i+=1) {
+        this.tracks[i].drawTrack(projectionMatrix, viewMatrix, gl, programInfo);
+      }
     }
   }
