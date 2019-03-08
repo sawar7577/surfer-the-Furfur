@@ -1,5 +1,3 @@
-// import Track from './track.js'
-
 main();
 
 
@@ -21,19 +19,38 @@ function main() {
   
   const vsTSource = `
     attribute vec4 aVertexPosition;
+    attribute vec3 aVertexNormal;
     attribute vec2 aTextureCoord;
+    // attribute vec4 aVertexColor;
 
     uniform mat4 uModelMatrix;
     uniform mat4 uProjectionMatrix;
     uniform mat4 uViewMatrix;
+    uniform mat4 uNormalMatrix;
+
 
     varying highp vec2 vTextureCoord;
+    varying highp vec3 vLighting;
 
     void main(void) {
       gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
-      vTextureCoord = aTextureCoord;    
+      vTextureCoord = aTextureCoord;
+      
+      // Apply lighting effect
+
+      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+      highp vec3 directionalLightColor = vec3(1, 1, 1);
+      highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
+
+      highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+
+      highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+      vLighting = ambientLight + (directionalLightColor * directional);
     }
   `;
+
+
+
 
   const vsSource = `
     attribute vec4 aVertexPosition;
@@ -52,7 +69,7 @@ function main() {
       gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
       vColor = aVertexColor;
 
-      highp vec3 ambientLight = vec3(0.2, 0.2, 0.2);
+      highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);
       highp vec3 directionalLightColor = vec3(1, 1, 1);
       highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
       highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
@@ -63,18 +80,24 @@ function main() {
 
   const fsTSource = `
     varying highp vec2 vTextureCoord;
+    varying highp vec3 vLighting;
 
     uniform sampler2D uSampler;
 
     void main(void) {
-        gl_FragColor = texture2D(uSampler, vTextureCoord);
-    }
+        highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
+        gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+        gl_FragColor = vec4(texelColor.rgb * (vLighting - vLighting + vec3(1.0,1.0,1.0)), texelColor.a);
+
+      }
   `;
   const fsSource = `
     varying lowp vec4 vColor;
     varying highp vec3 vLighting;
 
     void main(void) {
+      // gl_FragColor = vColor ;
+
       gl_FragColor = vColor * vec4(vLighting, 1);
     }
   `;
@@ -83,9 +106,13 @@ function main() {
   // for the vertices and so forth is established.
 
   var tr = new RailTracks(gl);
+  var wl = new Walls(gl);
   var pl = new Player(gl);
   var cn = new Coin(gl);
-   
+  var trn = new Train(gl);
+  var jt = new Jetpack(gl);
+  var tt = new Tree(gl);
+  // var bl = new Blend(1,gl);
   
   const fieldOfView = 45 * Math.PI / 180;   // in radians
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
@@ -99,14 +126,14 @@ function main() {
                   zNear,
                   zFar);
 
-  var eye = [0, 0.5, 1]
-  var center = [0, 0, 0]
+  var eye = [0, 0.3, 0.3]
+  var center = [0, 0.3, 0]
   var up = [0, 1, 0]
   
   const shaderT = new Shader(gl, vsTSource, fsTSource);
   // Draw the scene repeatedly
   function render() {
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
     gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
@@ -116,8 +143,8 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     var viewMatrix = mat4.create();
-    eye[2] -= 0.03;
-    center[2] -= 0.03;
+    // eye[2] -= 0.03;
+    // center[2] -= 0.03;
     mat4.lookAt(viewMatrix,
                 eye,
                 center,
@@ -129,6 +156,7 @@ function main() {
         program: shaderT.shaderProgram,
         attribLocations: {
           vertexPosition: gl.getAttribLocation(shaderT.shaderProgram, 'aVertexPosition'),
+          vertexNormal: gl.getAttribLocation(shaderT.shaderProgram, 'aVertexNormal'),
           textureCoord: gl.getAttribLocation(shaderT.shaderProgram, 'aTextureCoord'),
           
         },
@@ -136,16 +164,23 @@ function main() {
           projectionMatrix: gl.getUniformLocation(shaderT.shaderProgram, 'uProjectionMatrix'),
           viewMatrix: gl.getUniformLocation(shaderT.shaderProgram, 'uViewMatrix'),
           modelMatrix: gl.getUniformLocation(shaderT.shaderProgram, 'uModelMatrix'),
+          normalMatrix: gl.getUniformLocation(shaderT.shaderProgram, 'uNormalMatrix'),
           uSampler: gl.getUniformLocation(shaderT.shaderProgram, 'uSampler'),
         },
       };
       
+      // jt.draw(projectionMatrix, viewMatrix, gl,programInfoT);
+      // jt.tick();
+      // trn.draw(projectionMatrix, viewMatrix, gl,programInfoT);      
       tr.draw(projectionMatrix, viewMatrix, gl,programInfoT);
-      // cn.draw(gl,programInfoT);
-      // cn.tick();
+      wl.draw(projectionMatrix, viewMatrix, gl,programInfoT);
 
+      // tr.tick(pl.position,gl);
+      // cn.draw(projectionMatrix, viewMatrix,gl,programInfoT);
+      // cn.tick();
+      
       shaderC.attachShaderProgram(gl);
-    
+      
       const programInfoC = {
         program: shaderC.shaderProgram,
         attribLocations: {
@@ -156,15 +191,16 @@ function main() {
         },
         uniformLocations: {
           projectionMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uProjectionMatrix'),
-            viewMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uViewMatrix'),
-            modelMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uModelMatrix'),
-            normalMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uNormalMatrix'),
-          },
-        };
-        pl.tick();
-        pl.draw(projectionMatrix, viewMatrix, gl, programInfoC);
+          viewMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uViewMatrix'),
+          modelMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uModelMatrix'),
+          normalMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uNormalMatrix'),
+        },
+      };
+      // drawColor(tt,projectionMatrix, viewMatrix, gl,programInfoC);
+      // pl.tick();
+      // pl.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       
-        
+      
       requestAnimationFrame(render);
     }
     requestAnimationFrame(render);

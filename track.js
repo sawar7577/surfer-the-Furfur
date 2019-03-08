@@ -4,7 +4,7 @@ class Track {
       this.width = width;
       this.position = pos
       this.vertexCount = 4
-      this.texture = loadTexture(gl, "./rails.png")
+      this.texture = loadTexture(gl, "./rails.jpeg")
 
       this.vertices = [
         -this.length/2, 0,  this.width/2,
@@ -18,6 +18,12 @@ class Track {
         2, 3, 0,
       ];
 
+      this.normals = [
+        0.0, 1.0, 0,
+        0.0, 1.0, 0,
+        0.0, 1.0, 0,
+        0.0, 1.0, 0,
+      ];
   
       this.textureCoordinates = [
         0, 1,
@@ -39,6 +45,9 @@ class Track {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureCoordinates), gl.STATIC_DRAW);
 
+      this.normalBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW);
     }
     setPosition(x, y, z) {
       this.position = [x, y, z];
@@ -46,29 +55,6 @@ class Track {
 
     drawTrack(projectionMatrix, viewMatrix, gl, programInfo) {
 
-        // const fieldOfView = 45 * Math.PI / 180;   // in radians
-        // const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-        // const zNear = 0.1;
-        // const zFar = 100.0;
-        // const projectionMatrix = mat4.create();
-
-        // // note: glmatrix.js always has the first argument
-        // // as the destination to receive the result.
-        // mat4.perspective(projectionMatrix,
-        //                 fieldOfView,
-        //                 aspect,
-        //                 zNear,
-        //                 zFar);
-
-        // const eye = [0, 0.1, 1]
-        // const center = [0, 0, 0]
-        // const up = [0, 1, 0]
-        // const viewMatrix = mat4.create();
-
-        // mat4.lookAt(viewMatrix,
-        //             eye,
-        //             center,
-        //             up);
 
         const modelMatrix = mat4.create();
         var translate = mat4.create();
@@ -76,8 +62,20 @@ class Track {
         translate,     // matrix to translate
         this.position);
 
+        // const normalMatrix = mat4.create();
+        // mat4.invert(normalMatrix, projectionMatrix * viewMatrix * modelMatrix);
+        // mat4.transpose(normalMatrix, normalMatrix);
 
         mat4.multiply(modelMatrix, modelMatrix, translate);
+        
+        var normalMatrix = mat4.create();
+        mat4.multiply(normalMatrix, viewMatrix, modelMatrix);
+
+
+        mat4.invert(normalMatrix, normalMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+
+
         {
             const numComponents = 3;
             const type = gl.FLOAT;
@@ -95,6 +93,25 @@ class Track {
             gl.enableVertexAttribArray(
                 programInfo.attribLocations.vertexPosition);
         }
+
+        {
+          const numComponents = 3;
+          const type = gl.FLOAT;
+          const normalize = false;
+          const stride = 0;
+          const offset = 0;
+          gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+          gl.vertexAttribPointer(
+              programInfo.attribLocations.vertexNormal,
+              numComponents,
+              type,
+              normalize,
+              stride,
+              offset);
+          gl.enableVertexAttribArray(
+              programInfo.attribLocations.vertexNormal);
+      }
+
         {
             const num = 2; // every coordinate composed of 2 values
             const type = gl.FLOAT; // the data in the buffer is 32 bit float
@@ -133,6 +150,11 @@ class Track {
             false,
             modelMatrix);
 
+            gl.uniformMatrix4fv(
+                programInfo.uniformLocations.normalMatrix,
+            false,
+            normalMatrix);
+
         
         gl.activeTexture(gl.TEXTURE0);
         
@@ -155,10 +177,24 @@ class Track {
     constructor(gl){
       // this.position = pos;
       this.tracks = [];
-      for(let i = 0 ; i < 20 ; i+=1) {
-        this.tracks.push(new Track([ -0.1, 0, 0.1*i], 0.1, 0.1, gl));
-        this.tracks.push(new Track([    0, 0, 0.1*i], 0.1, 0.1, gl));
-        this.tracks.push(new Track([  0.1, 0, 0.1*i], 0.1, 0.1, gl));
+      for(let i = 0 ; i < 80 ; i+=1) {
+        this.tracks.push(new Track([ -0.33, 0, -0.33*i], 0.33, 0.33, gl));
+        this.tracks.push(new Track([    0, 0, -0.33*i], 0.33, 0.33, gl));
+        this.tracks.push(new Track([  0.33, 0, -0.33*i], 0.33, 0.33, gl));
+      }
+    }
+    tick(pos,gl) {
+      if(this.tracks[0].position[2] - pos[2] > 1) {
+        this.tracks.shift();
+        this.tracks.shift();
+        this.tracks.shift();
+
+        var z = this.tracks[this.tracks.length - 1].position[2];
+        this.tracks.push(new Track([-0.33,0,z-0.33] ,0.33, 0.33, gl));
+        this.tracks.push(new Track([0,0,z-0.33] ,0.33, 0.33, gl));
+        this.tracks.push(new Track([0.33,0,z-0.33] ,0.33, 0.33, gl));
+
+
       }
     }
     draw(projectionMatrix, viewMatrix, gl, programInfo) {
@@ -166,4 +202,6 @@ class Track {
         this.tracks[i].drawTrack(projectionMatrix, viewMatrix, gl, programInfo);
       }
     }
+
+
   }
