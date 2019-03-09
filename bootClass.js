@@ -3,6 +3,8 @@ class Boot {
         this.position = [0,0.18,-1];
         this.rotation = [0,0,0];
         this.scale = [0.02,0.02,0.02];
+        this.ambientStrength = 0.9;
+        this.directionalStrength = 0.01;
 
         var ret = parseObj(bootStruct,bootColor);
         this.vertices = ret.verticesObj;
@@ -25,5 +27,8 @@ class Boot {
         this.colorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors), gl.STATIC_DRAW);
+    }
+    setPosition(pos) {
+        this.position = pos;
     }
 }

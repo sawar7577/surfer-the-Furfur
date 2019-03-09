@@ -3,6 +3,8 @@ class Tree {
         this.position = [0,0,-1];
         this.rotation = [0,0,0];
         this.scale = [0.08,0.08,0.08];
+        this.ambientStrength = 1;
+        this.directionalStrength = 0.1;
 
         var ret = parseObj(treeStruct,treeColor);
         this.vertices = ret.verticesObj;
@@ -25,5 +27,8 @@ class Tree {
         this.colorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors), gl.STATIC_DRAW);
+    }
+    setPosition(pos) {
+        this.position = pos;
     }
 }

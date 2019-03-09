@@ -1,15 +1,12 @@
-class Train {
+class Rocket {
     constructor(gl) {
-        // start 1 end 3.1
-        this.position = [-0.3,0,-1];
-        this.rotation = [0,1.57,0];
-        this.scale = [0.08,0.08,0.08];
-        this.ambientStrength = 0.8;
-        this.directionalStrength = 0.02;
-        // this.texture = loadTexture(gl, "./wood.jpg");
+        this.position = [0,0.18,-1];
+        this.rotation = [-1.57,0.57,0.57];
+        this.scale = [2.5,2.5,2.5];
+        this.ambientStrength = 0.9;
+        this.directionalStrength = 0.01;
 
-
-        var ret = parseObj(trainStruct, trainColor);
+        var ret = parseObj(rocketStruct,rocketColor);
         this.vertices = ret.verticesObj;
         this.textureCoord = ret.texturesObj;
         this.normals = ret.normalsObj;
@@ -34,4 +31,4 @@ class Train {
     setPosition(pos) {
         this.position = pos;
     }
-};
+}

@@ -4,6 +4,8 @@ class Cube {
         this.length = length;
         this.width = width;
         this.depth = depth;
+        this.ambientStrength = 0.3;
+        this.directionalStrength = 0.3;
 
         this.rotation = [0, 0, 0];
 
@@ -241,6 +243,16 @@ class Cube {
             false,
             normalMatrix);
 
+            gl.uniform1f(
+                programInfo.uniformLocations.ambientStrength,
+            // false,
+            this.ambientStrength);
+
+            gl.uniform1f(
+                programInfo.uniformLocations.directionalStrength,
+            // false,
+            this.directionalStrength);
+
         {
             const vertexcount = 36;
             const type = gl.UNSIGNED_SHORT;
@@ -256,6 +268,8 @@ class CubeT {
         this.length = length;
         this.width = width;
         this.depth = depth;
+        this.ambientStrength = 0.3;
+        this.directionalStrength = 1.0;
 
         this.rotation = [0, 0, 0];
 
@@ -505,6 +519,13 @@ class CubeT {
             false,
             normalMatrix);
 
+            gl.uniform1f(
+                programInfo.uniformLocations.ambientStrength,
+            this.ambientStrength);
+    
+            gl.uniform1f(
+                programInfo.uniformLocations.directionalStrength,
+            this.directionalStrength);
 
             gl.activeTexture(gl.TEXTURE0);
         

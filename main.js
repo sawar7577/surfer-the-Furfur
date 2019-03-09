@@ -27,6 +27,8 @@ function main() {
     uniform mat4 uProjectionMatrix;
     uniform mat4 uViewMatrix;
     uniform mat4 uNormalMatrix;
+    uniform float ambientStrength;
+    uniform float directionalStrength;
 
 
     varying highp vec2 vTextureCoord;
@@ -38,14 +40,14 @@ function main() {
       
       // Apply lighting effect
 
-      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+      highp vec3 ambientLight = ambientStrength * vec3(1.0, 1.0, 1.0);
       highp vec3 directionalLightColor = vec3(1, 1, 1);
       highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
 
       highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
 
       highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-      vLighting = ambientLight + (directionalLightColor * directional) ;
+      vLighting = ambientLight + (directionalLightColor * directional) * directionalStrength ;
     }
   `;
 
@@ -61,6 +63,8 @@ function main() {
     uniform mat4 uProjectionMatrix;
     uniform mat4 uViewMatrix;
     uniform mat4 uNormalMatrix;
+    uniform float ambientStrength;
+    uniform float directionalStrength;
 
     varying lowp vec4 vColor;
     varying highp vec3 vLighting;
@@ -69,12 +73,12 @@ function main() {
       gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
       vColor = aVertexColor;
 
-      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+      highp vec3 ambientLight = ambientStrength * vec3( 1.0, 1.0, 1.0);
       highp vec3 directionalLightColor = vec3(1, 1, 1);
       highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
       highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
       highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-      vLighting = ambientLight + (directionalLightColor * directional) * 1.1;
+      vLighting = ambientLight + (directionalLightColor * directional) * directionalStrength;
     }
   `;
 
@@ -88,8 +92,8 @@ function main() {
         highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
         // gl_FragColor = vec4(texelColor.rgb , texelColor.a);
 
-        // gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
-        gl_FragColor = vec4(texelColor.rgb * (vLighting - vLighting + vec3(1.0,1.0,1.0)), texelColor.a);
+        // gl_FragColor = vec4(texelColor.rgb * (vLighting - vLighting + vec3(1.0,1.0,1.0)), texelColor.a);
+        gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
 
       }
   `;
@@ -118,6 +122,21 @@ function main() {
   fences.push(new Fence(gl));
   fences.push(new Fence(gl));
 
+  var boots = [];
+  boots.push(new Boot(gl));
+  boots.push(new Boot(gl));
+  boots.push(new Boot(gl));
+
+  var rockets = [];
+  rockets.push(new Rocket(gl));
+  rockets.push(new Rocket(gl));
+  rockets.push(new Rocket(gl));
+
+  var trees = [];
+  trees.push(new Tree(gl));
+  trees.push(new Tree(gl));
+  trees.push(new Tree(gl));
+
 
   var tr = new RailTracks(gl);
   var wl = new Walls(gl);
@@ -128,6 +147,7 @@ function main() {
   var tt = new Tree(gl);
   var fn = new Fence(gl);
   var bt = new Boot(gl);
+  var rt = new Rocket(gl);
   // var bl = new Blend(1,gl);
   
   const fieldOfView = 45 * Math.PI / 180;   // in radians
@@ -142,7 +162,7 @@ function main() {
                   zNear,
                   zFar);
 
-  var eye = [0.0, 0.3, 1.2]
+  var eye = [0.0, 0.6, 1.2]
   var center = [0, 0.3, 0]
   var up = [0, 1, 0]
   
@@ -150,7 +170,7 @@ function main() {
   // Draw the scene repeatedly
   function render() {
 
-    console.log(pl.position[2]);
+    // console.log(pl.position[2]);
     Mousetrap.bind('left', function() {
       // pl.position[0] -= 0.3;
       // this.lane = Math.max(-1,this.lane-1);
@@ -219,7 +239,9 @@ function main() {
           modelMatrix: gl.getUniformLocation(shaderT.shaderProgram, 'uModelMatrix'),
           normalMatrix: gl.getUniformLocation(shaderT.shaderProgram, 'uNormalMatrix'),
           uSampler: gl.getUniformLocation(shaderT.shaderProgram, 'uSampler'),
-        },
+          ambientStrength: gl.getUniformLocation(shaderT.shaderProgram, 'ambientStrength'),
+          directionalStrength: gl.getUniformLocation(shaderT.shaderProgram, 'directionalStrength')
+        },  
       };
       
       // jt.draw(projectionMatrix, viewMatrix, gl,programInfoT);
@@ -251,16 +273,35 @@ function main() {
           viewMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uViewMatrix'),
           modelMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uModelMatrix'),
           normalMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uNormalMatrix'),
+          ambientStrength: gl.getUniformLocation(shaderC.shaderProgram, 'ambientStrength'),
+          directionalStrength: gl.getUniformLocation(shaderC.shaderProgram, 'directionalStrength'),          
         },
       };
       placeTrain(trains, pl.position);
-      for(var i = 0 ; i < trains.length ; i+=1) {
-        drawColor(trains[i],projectionMatrix, viewMatrix, gl,programInfoC);
-      }
-      // drawColor(trn,projectionMatrix, viewMatrix, gl,programInfoC);
+      placeFence(fences, pl.position);
+      placeBoot(boots, pl.position);
+      placeRocket(rockets, pl.position);
+      placeTree(trees, pl.position);
+      drawSprites(trains, projectionMatrix, viewMatrix, gl,programInfoC);
+      drawSprites(fences, projectionMatrix, viewMatrix, gl,programInfoC);
+      drawSprites(boots, projectionMatrix, viewMatrix, gl,programInfoC);
+      drawSprites(rockets, projectionMatrix, viewMatrix, gl,programInfoC);
+      drawSprites(trees,  projectionMatrix, viewMatrix, gl,programInfoC);
+
+     
+      // for(var i = 0 ; i < trains.length ; i+=1) {
+      //   drawColor(trains[i],projectionMatrix, viewMatrix, gl,programInfoC);
+      // }
+      // for(var i = 0 ; i < fences.length ; i+=1) {
+      //    drawColor(fences[i],projectionMatrix, viewMatrix, gl,programInfoC);
+      // }
+      // for(var i = 0 ; i < boots.length ; i+=1) {
+      //   drawColor(boots[i],projectionMatrix, viewMatrix, gl,programInfoC);
+      // }
+      // // drawColor(trn,projectionMatrix, viewMatrix, gl,programInfoC);
       // drawColor(bt,projectionMatrix, viewMatrix, gl,programInfoC);
 
-      // drawColor(fn,projectionMatrix, viewMatrix, gl,programInfoC);
+      // drawColor(rt,projectionMatrix, viewMatrix, gl,programInfoC);
       pl.tick();
       pl.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       
@@ -287,4 +328,87 @@ function main() {
           lst[i].setPosition([rand,0,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
         }
     }
+}
+
+function placeFence(lst, pos) {
+  var amp = 16;
+    for(var i = 0 ; i < lst.length ; i+=1) {
+        var rand = Math.random();
+        if(lst[i].position[2] > pos[2]+3) {
+          if(rand <= 0.3) {
+            rand = -0.3;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+          }
+          else {
+            rand = 0.3
+          }
+          lst[i].setPosition([rand,0.1,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+        }
+    }
+}
+
+function placeBoot(lst, pos) {
+  var amp = 16;
+    for(var i = 0 ; i < lst.length ; i+=1) {
+        var rand = Math.random();
+        if(lst[i].position[2] > pos[2]+3) {
+          if(rand <= 0.3) {
+            rand = -0.3;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+          }
+          else {
+            rand = 0.3
+          }
+          lst[i].setPosition([rand,0.18,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+        }
+    }
+}
+
+function placeRocket(lst, pos) {
+  var amp = 16;
+    for(var i = 0 ; i < lst.length ; i+=1) {
+        var rand = Math.random();
+        if(lst[i].position[2] > pos[2]+3) {
+          if(rand <= 0.3) {
+            rand = -0.3;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+          }
+          else {
+            rand = 0.3
+          }
+          lst[i].setPosition([rand,0.18,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+        }
+    }
+}
+
+function placeTree(lst, pos) {
+  var amp = 16;
+    for(var i = 0 ; i < lst.length ; i+=1) {
+        var rand = Math.random();
+        if(lst[i].position[2] > pos[2]+3) {
+          if(rand <= 0.5) {
+            rand = -0.15;
+          }
+          // else if (rand <= 0.6) {
+            // rand = 0;
+          // }
+          else {
+            rand = 0.15
+          }
+          lst[i].setPosition([rand,0.0,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+        }
+    }
+}
+
+
+function drawSprites(lst,projectionMatrix, viewMatrix, gl,programInfoC) {
+  for(var i = 0 ; i < lst.length ; i+=1) {
+    drawColor(lst[i],projectionMatrix, viewMatrix, gl,programInfoC);    
+  }
 }

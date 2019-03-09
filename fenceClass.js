@@ -1,8 +1,10 @@
 class Fence {
     constructor(gl) {
-        this.position = [0,0.11                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ,-1];
+        this.position = [0,0.1,-1];
         this.rotation = [0,0,0];
         this.scale = [0.0030,0.004,0.02];
+        this.ambientStrength = 0.9;
+        this.directionalStrength = 0.005;
         this.texture = loadTexture(gl, "./wood.jpg");
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
         var ret = parseObj(fenceStruct,fenceColor);
@@ -26,5 +28,8 @@ class Fence {
         this.colorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors), gl.STATIC_DRAW);
+    }
+    setPosition(pos) {
+        this.position = pos;
     }
 }

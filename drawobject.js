@@ -102,6 +102,15 @@ function drawColor(obj, projectionMatrix, viewMatrix, gl, programInfo) {
         false,
         normalMatrix);
 
+        // console.log(obj.ambientStrength);
+        gl.uniform1f(
+            programInfo.uniformLocations.ambientStrength,
+        obj.ambientStrength);
+
+        gl.uniform1f(
+            programInfo.uniformLocations.directionalStrength,
+        obj.directionalStrength);
+
     {
         gl.drawArrays(gl.TRIANGLES, 0, obj.vertices.length/3);
 
@@ -220,3 +229,5 @@ function drawTexture(obj, projectionMatrix, viewMatrix, gl, programInfo) {
 
     }
 };
+
+
