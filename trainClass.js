@@ -6,6 +6,7 @@ class Train {
         this.scale = [0.08,0.08,0.08];
         this.ambientStrength = 0.8;
         this.directionalStrength = 0.02;
+        this.lane = 0;
         // this.texture = loadTexture(gl, "./wood.jpg");
 
 

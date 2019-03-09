@@ -328,9 +328,12 @@ function main() {
       collisionBoot(pl, boots);
       collisionCoin(pl, coins);
       collisionRocket(pl, rockets);
+      collisionFence(pl, fences);
+      collisionTrain(pl, trains);
 
-      // placeTrain(trains, pl.position);
-      // placeFence(fences, pl.position);
+
+      placeTrain(trains, pl.position);
+      placeFence(fences, pl.position);
       placeBoot(boots, pl.position);
       placeRocket(rockets, pl.position);
       // placeTree(trees, pl.position);
@@ -338,8 +341,8 @@ function main() {
       tickSprites(rockets);
       tickSprites(boots);
       // tickSprites(trains);
-      // drawSprites(trains, projectionMatrix, viewMatrix, gl,programInfoC);
-      // drawSprites(fences, projectionMatrix, viewMatrix, gl,programInfoC);
+      drawSprites(trains, projectionMatrix, viewMatrix, gl,programInfoC);
+      drawSprites(fences, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(boots, projectionMatrix, viewMatrix, gl,programInfoC);
       // for(var i = 0 ; i < boots.length ; ++i) {
         // boots[i].box.draw(projectionMatrix, viewMatrix, gl, programInfoC);
@@ -362,17 +365,22 @@ function main() {
     var amp = 16;
     for(var i = 0 ; i < lst.length ; i+=1) {
         var rand = Math.random();
+        var lane = 0;
         if(lst[i].position[2] > pos[2]+3) {
           if(rand <= 0.3) {
             rand = -0.3;
+            lane = -1;
           }
           else if (rand <= 0.6) {
             rand = 0;
+            lane = 0;
           }
           else {
-            rand = 0.3
+            rand = 0.3;
+            lane = 1;
           }
           lst[i].setPosition([rand,0,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].lane = lane;
         }
     }
 }
@@ -381,17 +389,22 @@ function placeFence(lst, pos) {
   var amp = 16;
     for(var i = 0 ; i < lst.length ; i+=1) {
         var rand = Math.random();
+        var lane = 0;
         if(lst[i].position[2] > pos[2]+3) {
           if(rand <= 0.3) {
             rand = -0.3;
+            lane = -1;
           }
           else if (rand <= 0.6) {
             rand = 0;
+            lane = 0;
           }
           else {
             rand = 0.3
+            lane = 1;
           }
           lst[i].setPosition([rand,0.1,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].lane = lane;
         }
     }
 }
@@ -591,9 +604,60 @@ function collisionRocket(playa, lst) {
             lane = 1;
           }
         var amp = 16;
+        this.jetstart = 0;
         playa.collision += 1;
           lst[i].setPosition([rand,0.18,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
+      }
+    }
+    }
+  }
+}
+
+function collisionFence(playa, lst) {
+  for(var i = 0 ; i < lst.length; i+=1) {
+    if(playa.lane == lst[i].lane) {
+      // console.log("collison");
+      if(Math.abs(playa.position[2] - lst[i].position[2]) < 0.03) {
+        if(Math.abs(playa.position[1]+0.1 - lst[i].position[1]) < 0.03) {
+
+        console.log(playa.collision, lst[i].lane);
+        var rand = Math.random();  
+        var lane = 0;
+          if(rand <= 0.3) {
+            rand = -0.3;
+            lane = -1;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+            lane = 0;
+          }
+          else {
+            rand = 0.3;
+            lane = 1;
+          }
+        var amp = 16;
+        playa.collision += 1;
+          lst[i].setPosition([rand,0.1,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
+          lst[i].lane = lane;
+        }
+      }
+    }
+  }
+}
+
+function collisionTrain(playa, lst) {
+  playa.onTrain = false;
+  for(var i = 0 ; i < lst.length; i+=1) {
+    if(playa.lane == lst[i].lane) {
+      if( (playa.position[2] - lst[i].position[2]) < 0.0) {
+        if((playa.position[1] - lst[i].position[1]) > 0.0) {
+          playa.onTrain = true;
+      }
+      if(playa.onTrain == true){
+        if((playa.position[2] - lst[i].position[2]) < -2.0) {
+          playa.onTrain = false;
+        }
       }
     }
     }

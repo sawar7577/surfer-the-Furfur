@@ -7,7 +7,9 @@ class Player {
         this.superjump = false;
         this.jumpval = 0.048;
         this.jumpstart = 0;
+        this.jetstart = 0;
         this.score = 0;
+        this.onTrain = false;
 
         this.runningCycle = 0;
         this.torso = new Cube(0.04,0.04,0.04, [107/256.0, 255/256.0, 255/256.0, 1.0], gl);
@@ -41,13 +43,18 @@ class Player {
         this.head.setPosition([0,0.18,0]);
     }
     tick() {
-        // console.log(this.jumpval);
+        var mn = 0;
+        if(this.onTrain == true) {
+            mn = 0.4;
+        }
+     
         this.jumpstart += 1;
-        // var d = new Date();
-        // console.log(d.getTime() - this.jumpstart.getTime());
+        this.jetstart += 1;
+
+        
+
         if(this.jumpstart > 25) {
             this.jumpval = 0.048;
-            // this.jumpstart = 0;
         }
         if(this.lane == 0) {
             if(this.position[0] > 0) {
@@ -81,7 +88,7 @@ class Player {
         }
         this.velocity[1] = this.velocity[1] - 0.004;
         this.position[1] += this.velocity[1];
-        this.position[1] = Math.max(this.position[1],0);
+        this.position[1] = Math.max(this.position[1],mn);
         this.position[2] -= 0.02;
         const PI = 3.14159265359; 
         this.runningCycle += 0.4;
