@@ -56,7 +56,7 @@ class Player {
         this.velocity[1] = this.velocity[1] - 0.004;
         this.position[1] += this.velocity[1];
         this.position[1] = Math.max(this.position[1],0);
-        this.position[2] -= 0.03;
+        this.position[2] -= 0.02;
         const PI = 3.14159265359; 
         this.runningCycle += 0.4;
         var t = this.runningCycle;
@@ -128,3 +128,4 @@ class Player {
 
     }
 }
+

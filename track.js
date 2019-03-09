@@ -4,7 +4,7 @@ class Track {
       this.width = width;
       this.position = pos
       this.vertexCount = 4
-      this.texture = loadTexture(gl, "./rails.jpeg")
+      this.texture = loadTexture(gl, "./track5.png")
 
       this.vertices = [
         -this.length/2, 0,  this.width/2,

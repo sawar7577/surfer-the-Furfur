@@ -2,10 +2,10 @@
     constructor(gl){
       this.walls = [];
       for(let i = 0 ; i < 10 ; i+=1) {
-        var c1 = new CubeT(1.0,1.5,2.0,"./wall.jpg",gl);
-        var c2 = new CubeT(1.0,1.5,2.0,"./wall.jpg",gl);
-        c1.setPosition([-1,0,-i*2]);
-        c2.setPosition([1,0,-i*2]);
+        var c2 = new CubeT(1.0,1.5,2.0,"./wall4.jpeg",gl);
+        var c1 = new CubeT(1.0,1.5,2.0,"./wall4.jpeg",gl);
+        c1.setPosition([-1,0,-i*2.5]);
+        c2.setPosition([1,0,-i*2.5]);
 
         this.walls.push(c1);
         this.walls.push(c2);
@@ -17,10 +17,10 @@
         this.walls.shift();
 
         var z = this.walls[this.walls.length - 1].position[2];
-        var c1 = new CubeT(1.0,1.5,2.0,"./wall.jpg",gl);
-        var c2 = new CubeT(1.0,1.5,2.0,"./wall.jpg",gl);
-        c1.setPosition([-1,0,z - 2.0]);
-        c2.setPosition([1,0,z - 2.0]);
+        var c1 = new CubeT(1.0,1.5,2.0,"./wall4.jpeg",gl);
+        var c2 = new CubeT(1.0,1.5,2.0,"./wall4.jpeg",gl);
+        c1.setPosition([-1,0,z - 2.5]);
+        c2.setPosition([1,0,z - 2.5]);
 
         this.walls.push(c1);
         this.walls.push(c2);

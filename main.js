@@ -126,7 +126,7 @@ function main() {
   // var trn = new Train(gl);
   var jt = new Jetpack(gl);
   var tt = new Tree(gl);
-  // var fn = new Fence(gl);
+  var fn = new Fence(gl);
   var bt = new Boot(gl);
   // var bl = new Blend(1,gl);
   
@@ -150,7 +150,7 @@ function main() {
   // Draw the scene repeatedly
   function render() {
 
-    console.log(pl.lane);
+    console.log(pl.position[2]);
     Mousetrap.bind('left', function() {
       // pl.position[0] -= 0.3;
       // this.lane = Math.max(-1,this.lane-1);
@@ -185,7 +185,7 @@ function main() {
     });
 
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+    gl.clearColor(135/256.0, 206/256.0, 236/256.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
     gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
@@ -195,8 +195,8 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     var viewMatrix = mat4.create();
-    eye[2] -= 0.03;
-    center[2] -= 0.03;
+    eye[2] -= 0.02;
+    center[2] -= 0.02;
     // tt.position[2] -= 0.03;
     mat4.lookAt(viewMatrix,
                 eye,
@@ -253,7 +253,11 @@ function main() {
           normalMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uNormalMatrix'),
         },
       };
-      drawColor(trn,projectionMatrix, viewMatrix, gl,programInfoC);
+      placeTrain(trains, pl.position);
+      for(var i = 0 ; i < trains.length ; i+=1) {
+        drawColor(trains[i],projectionMatrix, viewMatrix, gl,programInfoC);
+      }
+      // drawColor(trn,projectionMatrix, viewMatrix, gl,programInfoC);
       // drawColor(bt,projectionMatrix, viewMatrix, gl,programInfoC);
 
       // drawColor(fn,projectionMatrix, viewMatrix, gl,programInfoC);
@@ -265,3 +269,22 @@ function main() {
     }
     requestAnimationFrame(render);
   }
+
+  function placeTrain(lst, pos) {
+    var amp = 16;
+    for(var i = 0 ; i < lst.length ; i+=1) {
+        var rand = Math.random();
+        if(lst[i].position[2] > pos[2]+3) {
+          if(rand <= 0.3) {
+            rand = -0.3;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+          }
+          else {
+            rand = 0.3
+          }
+          lst[i].setPosition([rand,0,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+        }
+    }
+}

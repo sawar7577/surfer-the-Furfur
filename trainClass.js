@@ -1,5 +1,6 @@
 class Train {
     constructor(gl) {
+        // start 1 end 3.1
         this.position = [-0.3,0,-1];
         this.rotation = [0,1.57,0];
         this.scale = [0.08,0.08,0.08];
@@ -27,5 +28,8 @@ class Train {
         this.colorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors), gl.STATIC_DRAW);
+    }
+    setPosition(pos) {
+        this.position = pos;
     }
 };
