@@ -45,7 +45,7 @@ function main() {
       highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
 
       highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-      vLighting = ambientLight + (directionalLightColor * directional);
+      vLighting = ambientLight + (directionalLightColor * directional) ;
     }
   `;
 
@@ -69,12 +69,12 @@ function main() {
       gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
       vColor = aVertexColor;
 
-      highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);
+      highp vec3 ambientLight = vec3(0.8, 0.8, 0.8);
       highp vec3 directionalLightColor = vec3(1, 1, 1);
       highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
       highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
       highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-      vLighting = ambientLight + (directionalLightColor * directional);
+      vLighting = ambientLight + (directionalLightColor * directional) * 0.05;
     }
   `;
 
@@ -86,7 +86,9 @@ function main() {
 
     void main(void) {
         highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
-        gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+        // gl_FragColor = vec4(texelColor.rgb , texelColor.a);
+
+        // gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
         gl_FragColor = vec4(texelColor.rgb * (vLighting - vLighting + vec3(1.0,1.0,1.0)), texelColor.a);
 
       }
@@ -112,6 +114,8 @@ function main() {
   var trn = new Train(gl);
   var jt = new Jetpack(gl);
   var tt = new Tree(gl);
+  var fn = new Fence(gl);
+  var bt = new Boot(gl);
   // var bl = new Blend(1,gl);
   
   const fieldOfView = 45 * Math.PI / 180;   // in radians
@@ -126,14 +130,14 @@ function main() {
                   zNear,
                   zFar);
 
-  var eye = [0, 0.3, 0.3]
+  var eye = [0.0, 0.3, 0.4]
   var center = [0, 0.3, 0]
   var up = [0, 1, 0]
   
   const shaderT = new Shader(gl, vsTSource, fsTSource);
   // Draw the scene repeatedly
   function render() {
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);  // Clear to black, fully opaque
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
     gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
@@ -145,6 +149,7 @@ function main() {
     var viewMatrix = mat4.create();
     // eye[2] -= 0.03;
     // center[2] -= 0.03;
+    // tt.position[2] -= 0.03;
     mat4.lookAt(viewMatrix,
                 eye,
                 center,
@@ -173,7 +178,9 @@ function main() {
       // jt.tick();
       // trn.draw(projectionMatrix, viewMatrix, gl,programInfoT);      
       tr.draw(projectionMatrix, viewMatrix, gl,programInfoT);
-      wl.draw(projectionMatrix, viewMatrix, gl,programInfoT);
+      // wl.draw(projectionMatrix, viewMatrix, gl,programInfoT);
+
+      // drawTexture(fn, projectionMatrix, viewMatrix, gl,programInfoT);
 
       // tr.tick(pl.position,gl);
       // cn.draw(projectionMatrix, viewMatrix,gl,programInfoT);
@@ -196,7 +203,10 @@ function main() {
           normalMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uNormalMatrix'),
         },
       };
-      // drawColor(tt,projectionMatrix, viewMatrix, gl,programInfoC);
+      // drawColor(trn,projectionMatrix, viewMatrix, gl,programInfoC);
+      drawColor(bt,projectionMatrix, viewMatrix, gl,programInfoC);
+
+      // drawColor(fn,projectionMatrix, viewMatrix, gl,programInfoC);
       // pl.tick();
       // pl.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       

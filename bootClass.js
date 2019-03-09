@@ -1,10 +1,10 @@
-class Tree {
+class Boot {
     constructor(gl) {
-        this.position = [0,0,-1];
+        this.position = [0,0.18,-1];
         this.rotation = [0,0,0];
-        this.scale = [0.08,0.08,0.08];
+        this.scale = [0.02,0.02,0.02];
 
-        var ret = parseObj(treeStruct,treeColor);
+        var ret = parseObj(bootStruct,bootColor);
         this.vertices = ret.verticesObj;
         this.textureCoord = ret.texturesObj;
         this.normals = ret.normalsObj;

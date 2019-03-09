@@ -1,10 +1,12 @@
-class Tree {
+class Train {
     constructor(gl) {
         this.position = [0,0,-1];
-        this.rotation = [0,0,0];
+        this.rotation = [0,1.57,0];
         this.scale = [0.08,0.08,0.08];
+        // this.texture = loadTexture(gl, "./wood.jpg");
 
-        var ret = parseObj(treeStruct,treeColor);
+
+        var ret = parseObj(trainStruct, trainColor);
         this.vertices = ret.verticesObj;
         this.textureCoord = ret.texturesObj;
         this.normals = ret.normalsObj;
@@ -26,4 +28,4 @@ class Tree {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors), gl.STATIC_DRAW);
     }
-}
+};
