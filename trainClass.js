@@ -34,4 +34,7 @@ class Train {
     setPosition(pos) {
         this.position = pos;
     }
+    tick() {
+        this.position[2] += 0.1;
+    }
 };

@@ -17,7 +17,7 @@ function main() {
   // Vertex shader program
 
   
-  const vsTSource = `
+  var vsTSource = `
     attribute vec4 aVertexPosition;
     attribute vec3 aVertexNormal;
     attribute vec2 aTextureCoord;
@@ -54,7 +54,7 @@ function main() {
 
 
 
-  const vsSource = `
+  var vsSource = `
     attribute vec4 aVertexPosition;
     attribute vec3 aVertexNormal;
     attribute vec4 aVertexColor;
@@ -82,7 +82,7 @@ function main() {
     }
   `;
 
-  const fsTSource = `
+  var fsTSource = `
     varying highp vec2 vTextureCoord;
     varying highp vec3 vLighting;
 
@@ -90,23 +90,51 @@ function main() {
 
     void main(void) {
         highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
-        // gl_FragColor = vec4(texelColor.rgb , texelColor.a);
-
-        // gl_FragColor = vec4(texelColor.rgb * (vLighting - vLighting + vec3(1.0,1.0,1.0)), texelColor.a);
+     
         gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
 
       }
   `;
-  const fsSource = `
+
+
+  var fsTSourceGray = `
+  varying highp vec2 vTextureCoord;
+  varying highp vec3 vLighting;
+
+  uniform sampler2D uSampler;
+
+  precision highp float;
+
+  void main(void) {
+    highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
+    
+    float grey = (texelColor.x + texelColor.y + texelColor.z)/3.0;
+  
+    gl_FragColor = vec4(grey, grey, grey, texelColor.a) * vec4(vLighting, 1);
+  }
+`;
+  var fsSource = `
     varying lowp vec4 vColor;
     varying highp vec3 vLighting;
 
     void main(void) {
-      // gl_FragColor = vColor ;
-
+    
       gl_FragColor = vColor * vec4(vLighting, 1);
     }
   `;
+
+  var fsSourceGray = `
+  varying lowp vec4 vColor;
+  varying highp vec3 vLighting;
+  precision highp float;
+
+  void main(void) {
+  
+
+    float grey = (vColor.x + vColor.y + vColor.z)/3.0;
+    gl_FragColor = vec4(grey, grey, grey, vColor[3]) * vec4(vLighting, 1);
+  }
+`;
 
   // Initialize a shader program; this is where all the lighting
   // for the vertices and so forth is established.
@@ -141,14 +169,7 @@ function main() {
   var tr = new RailTracks(gl);
   var wl = new Walls(gl);
   var pl = new Player(gl);
-  var cn = new Coin(gl);
-  // var trn = new Train(gl);
-  var jt = new Jetpack(gl);
-  var tt = new Tree(gl);
-  var fn = new Fence(gl);
-  var bt = new Boot(gl);
-  var rt = new Rocket(gl);
-  // var bl = new Blend(1,gl);
+  var kt = new Kutta(gl);
   
   const fieldOfView = 45 * Math.PI / 180;   // in radians
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
@@ -166,45 +187,60 @@ function main() {
   var center = [0, 0.3, 0]
   var up = [0, 1, 0]
   
-  const shaderT = new Shader(gl, vsTSource, fsTSource);
+  var fs = fsSource;
+  var fst = fsTSource;
   // Draw the scene repeatedly
   function render() {
-
+    
     // console.log(pl.position[2]);
     Mousetrap.bind('left', function() {
       // pl.position[0] -= 0.3;
       // this.lane = Math.max(-1,this.lane-1);
       if(pl.lane == 0) {
         pl.lane = -1;
+        kt.lane = -1;
       }
       if(pl.lane == 1) {
         pl.lane = 0;
+        kt.lane = 0;
       }
     });
-
-
+    
+    
     Mousetrap.bind('right', function() {
       // this.lane = Math.min(1,this.lane+1);
       // pl.position[0] += 0.3;
       if(pl.lane == 0) {
         pl.lane = 1;
+        kt.lane = 1;
       }
       if(pl.lane == -1) {
         pl.lane = 0;
+        kt.lane = 0;
       }
     });
-
+    
     Mousetrap.bind('up', function() {
       // pl.position[0] -= 0.3;
       pl.velocity[1] = 0.048;
     });
-
-
+    
+    
     Mousetrap.bind('down', function() {
       pl.position[0] += 0.3;
     });
-
-
+    
+    Mousetrap.bind('g', function() {
+      if(fs == fsSourceGray) {
+        fs = fsSource;
+        fst = fsTSource;
+      }
+      else {
+        fs = fsSourceGray;
+        fst = fsTSourceGray;
+      }
+    });
+    
     gl.clearColor(135/256.0, 206/256.0, 236/256.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -219,10 +255,11 @@ function main() {
     center[2] -= 0.02;
     // tt.position[2] -= 0.03;
     mat4.lookAt(viewMatrix,
-                eye,
-                center,
-                up);
-    const shaderC = new Shader(gl, vsSource, fsSource);
+      eye,
+      center,
+      up);
+      var shaderT = new Shader(gl, vsTSource, fst);
+      var shaderC = new Shader(gl, vsSource, fs);
       shaderT.attachShaderProgram(gl);
       
       const programInfoT = {
@@ -282,26 +319,16 @@ function main() {
       placeBoot(boots, pl.position);
       placeRocket(rockets, pl.position);
       placeTree(trees, pl.position);
+      tickSprites(rockets);
+      tickSprites(boots);
+      tickSprites(trains);
       drawSprites(trains, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(fences, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(boots, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(rockets, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(trees,  projectionMatrix, viewMatrix, gl,programInfoC);
-
-     
-      // for(var i = 0 ; i < trains.length ; i+=1) {
-      //   drawColor(trains[i],projectionMatrix, viewMatrix, gl,programInfoC);
-      // }
-      // for(var i = 0 ; i < fences.length ; i+=1) {
-      //    drawColor(fences[i],projectionMatrix, viewMatrix, gl,programInfoC);
-      // }
-      // for(var i = 0 ; i < boots.length ; i+=1) {
-      //   drawColor(boots[i],projectionMatrix, viewMatrix, gl,programInfoC);
-      // }
-      // // drawColor(trn,projectionMatrix, viewMatrix, gl,programInfoC);
-      // drawColor(bt,projectionMatrix, viewMatrix, gl,programInfoC);
-
-      // drawColor(rt,projectionMatrix, viewMatrix, gl,programInfoC);
+      kt.tick();
+      kt.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       pl.tick();
       pl.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       
@@ -410,5 +437,11 @@ function placeTree(lst, pos) {
 function drawSprites(lst,projectionMatrix, viewMatrix, gl,programInfoC) {
   for(var i = 0 ; i < lst.length ; i+=1) {
     drawColor(lst[i],projectionMatrix, viewMatrix, gl,programInfoC);    
+  }
+}
+
+function tickSprites(lst) {
+  for(var i = 0 ; i < lst.length; i+=1) {
+    lst[i].tick();
   }
 }

@@ -31,4 +31,9 @@ class Boot {
     setPosition(pos) {
         this.position = pos;
     }
+    tick(){
+        this.rotation[1] += 0.05;
+        this.rotation[2] += 0.05;
+
+    }
 }

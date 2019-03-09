@@ -5,16 +5,29 @@ class Player {
         this.lane = 0;
 
         this.runningCycle = 0;
-        this.torso = new Cube(0.04,0.04,0.04, [1.0,0,0,1.0], gl);
+        this.torso = new Cube(0.04,0.04,0.04, [107/256.0, 255/256.0, 255/256.0, 1.0], gl);
+        this.torso.ambientStrength = 0.5;
+        this.torso.directionalStrength = 0.7;
 
-        this.handR = new Cube(0.02,0.02,0.02, [1.0,0,0,1.0],gl);
-        this.handL = new Cube(0.02,0.02,0.02, [1.0,0,0,1.0],gl);
+        this.handR = new Cube(0.02,0.02,0.02, [91/256.0, 255/256.0, 110/256.0,1.0],gl);
+        this.handL = new Cube(0.02,0.02,0.02, [91/256.0, 255/256.0, 110/256.0,1.0],gl);
+        this.handL.ambientStrength = 0.5;
+        this.handL.directionalStrength = 0.7;
+        this.handR.ambientStrength = 0.5;
+        this.handR.directionalStrength = 0.7;
 
-        this.legR = new Cube(0.03,0.01,0.05, [1.0,0,0,1.0],gl);
-        this.legL = new Cube(0.03,0.01,0.05, [1.0,0,0,1.0],gl);
 
-        this.head = new Cube(0.08,0.08,0.08, [1.0,0,0,1.0],gl);
-    
+        this.legR = new Cube(0.03,0.01,0.05, [43/256.0, 26/256.0, 56/256.0,1.0],gl);
+        this.legL = new Cube(0.03,0.01,0.05, [43/256.0, 26/256.0, 56/256.0,1.0],gl);
+        this.legL.ambientStrength = 0.5;
+        this.legL.directionalStrength = 0.7;
+        this.legR.ambientStrength = 0.5;
+        this.legR.directionalStrength = 0.7;
+
+        this.head = new Cube(0.08,0.08,0.08, [255/256.0, 207/256.0, 145/256.0, 1.0],gl);
+        this.head.ambientStrength = 0.5;
+        this.head.directionalStrength = 0.7;
+
         this.torso.setPosition([0,0.1,0]);
         this.handR.setPosition([0.05,0.1,0]);
         this.handL.setPosition([-0.05,0.1,0]);
@@ -102,16 +115,6 @@ class Player {
         this.handR.position[2] = this.position[2] -Math.cos( t + PI) * amp * 1.1;
         this.handR.position[1] = this.position[1] + 0.1;
         this.handR.position[0] = this.position[0] + 0.05;
-
-        
-        // this.handL.rotation[0] += -Math.cos( t/2 + PI) * PI/8;
-
-        // this.handR.position[1] = this.position[1] + 0.1;
-        // this.handL.position[0] = this.position[0];
-
-        // this.legR.position[0] = this.position[0];
-        // this.legL.position[0] = this.position[0];
-
 
     }
 

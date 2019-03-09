@@ -31,4 +31,7 @@ class Rocket {
     setPosition(pos) {
         this.position = pos;
     }
+    tick(){
+        this.rotation[0] += 0.1;
+    }
 }
