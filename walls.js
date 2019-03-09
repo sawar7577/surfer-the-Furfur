@@ -13,10 +13,10 @@
     }
     tick(pos,gl) {
       if(this.walls[0].position[2] - pos[2] > 1) {
-        this.wall.shift();
-        this.wall.shift();
+        this.walls.shift();
+        this.walls.shift();
 
-        var z = this.tracks[this.walls.length - 1].position[2];
+        var z = this.walls[this.walls.length - 1].position[2];
         var c1 = new CubeT(1.0,1.5,2.0,"./wall.jpg",gl);
         var c2 = new CubeT(1.0,1.5,2.0,"./wall.jpg",gl);
         c1.setPosition([-1,0,z - 2.0]);

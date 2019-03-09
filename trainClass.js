@@ -1,6 +1,6 @@
 class Train {
     constructor(gl) {
-        this.position = [0,0,-1];
+        this.position = [-0.3,0,-1];
         this.rotation = [0,1.57,0];
         this.scale = [0.08,0.08,0.08];
         // this.texture = loadTexture(gl, "./wood.jpg");

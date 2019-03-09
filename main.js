@@ -69,12 +69,12 @@ function main() {
       gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
       vColor = aVertexColor;
 
-      highp vec3 ambientLight = vec3(0.8, 0.8, 0.8);
+      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
       highp vec3 directionalLightColor = vec3(1, 1, 1);
       highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
       highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
       highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-      vLighting = ambientLight + (directionalLightColor * directional) * 0.05;
+      vLighting = ambientLight + (directionalLightColor * directional) * 1.1;
     }
   `;
 
@@ -107,14 +107,26 @@ function main() {
   // Initialize a shader program; this is where all the lighting
   // for the vertices and so forth is established.
 
+
+  var trains = [];
+  trains.push(new Train(gl));
+  trains.push(new Train(gl));
+  trains.push(new Train(gl));
+
+  var fences = [];
+  fences.push(new Fence(gl));
+  fences.push(new Fence(gl));
+  fences.push(new Fence(gl));
+
+
   var tr = new RailTracks(gl);
   var wl = new Walls(gl);
   var pl = new Player(gl);
   var cn = new Coin(gl);
-  var trn = new Train(gl);
+  // var trn = new Train(gl);
   var jt = new Jetpack(gl);
   var tt = new Tree(gl);
-  var fn = new Fence(gl);
+  // var fn = new Fence(gl);
   var bt = new Boot(gl);
   // var bl = new Blend(1,gl);
   
@@ -130,13 +142,49 @@ function main() {
                   zNear,
                   zFar);
 
-  var eye = [0.0, 0.3, 0.4]
+  var eye = [0.0, 0.3, 1.2]
   var center = [0, 0.3, 0]
   var up = [0, 1, 0]
   
   const shaderT = new Shader(gl, vsTSource, fsTSource);
   // Draw the scene repeatedly
   function render() {
+
+    console.log(pl.lane);
+    Mousetrap.bind('left', function() {
+      // pl.position[0] -= 0.3;
+      // this.lane = Math.max(-1,this.lane-1);
+      if(pl.lane == 0) {
+        pl.lane = -1;
+      }
+      if(pl.lane == 1) {
+        pl.lane = 0;
+      }
+    });
+
+
+    Mousetrap.bind('right', function() {
+      // this.lane = Math.min(1,this.lane+1);
+      // pl.position[0] += 0.3;
+      if(pl.lane == 0) {
+        pl.lane = 1;
+      }
+      if(pl.lane == -1) {
+        pl.lane = 0;
+      }
+    });
+
+    Mousetrap.bind('up', function() {
+      // pl.position[0] -= 0.3;
+      pl.velocity[1] = 0.048;
+    });
+
+
+    Mousetrap.bind('down', function() {
+      pl.position[0] += 0.3;
+    });
+
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -147,8 +195,8 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     var viewMatrix = mat4.create();
-    // eye[2] -= 0.03;
-    // center[2] -= 0.03;
+    eye[2] -= 0.03;
+    center[2] -= 0.03;
     // tt.position[2] -= 0.03;
     mat4.lookAt(viewMatrix,
                 eye,
@@ -178,11 +226,13 @@ function main() {
       // jt.tick();
       // trn.draw(projectionMatrix, viewMatrix, gl,programInfoT);      
       tr.draw(projectionMatrix, viewMatrix, gl,programInfoT);
-      // wl.draw(projectionMatrix, viewMatrix, gl,programInfoT);
+      wl.draw(projectionMatrix, viewMatrix, gl,programInfoT);
 
       // drawTexture(fn, projectionMatrix, viewMatrix, gl,programInfoT);
 
-      // tr.tick(pl.position,gl);
+      tr.tick(pl.position,gl);
+      wl.tick(pl.position,gl);
+
       // cn.draw(projectionMatrix, viewMatrix,gl,programInfoT);
       // cn.tick();
       
@@ -203,12 +253,12 @@ function main() {
           normalMatrix: gl.getUniformLocation(shaderC.shaderProgram, 'uNormalMatrix'),
         },
       };
-      // drawColor(trn,projectionMatrix, viewMatrix, gl,programInfoC);
-      drawColor(bt,projectionMatrix, viewMatrix, gl,programInfoC);
+      drawColor(trn,projectionMatrix, viewMatrix, gl,programInfoC);
+      // drawColor(bt,projectionMatrix, viewMatrix, gl,programInfoC);
 
       // drawColor(fn,projectionMatrix, viewMatrix, gl,programInfoC);
-      // pl.tick();
-      // pl.draw(projectionMatrix, viewMatrix, gl, programInfoC);
+      pl.tick();
+      pl.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       
       
       requestAnimationFrame(render);
