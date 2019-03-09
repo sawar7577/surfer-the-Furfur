@@ -2,7 +2,7 @@ class Tree {
     constructor(gl) {
         this.position = [0,0,-1];
         this.rotation = [0,0,0];
-        this.scale = [0.08,0.08,0.08];
+        this.scale = [0.06,0.08,0.08];
         this.ambientStrength = 1;
         this.directionalStrength = 0.1;
 
@@ -11,6 +11,8 @@ class Tree {
         this.textureCoord = ret.texturesObj;
         this.normals = ret.normalsObj;
         this.colors = ret.colorsObj;
+        this.setMe = false;
+
 
         this.vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);

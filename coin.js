@@ -1,10 +1,14 @@
 
 class Coin {
     constructor(gl) {
-        this.radius = 0.1;
+        this.radius = 0.05;
         this.depth = 0.02;
         this.position = [0,0.0,0];
         this.rotation = [0,0,0];
+        this.ambientStrength = 0.5;
+        this.directionalStrength = 0.5;
+        this.setMe = false;
+
         const PI = 3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067;
 
         this.vertices = [];
@@ -271,6 +275,15 @@ class Coin {
             false,
             normalMatrix);
 
+            gl.uniform1f(
+                programInfo.uniformLocations.ambientStrength,
+            this.ambientStrength);
+    
+            gl.uniform1f(
+                programInfo.uniformLocations.directionalStrength,
+            this.directionalStrength);
+    
+
         
         gl.activeTexture(gl.TEXTURE0);
         
@@ -285,5 +298,8 @@ class Coin {
             // gl.drawElements(gl.TRIANGLES, vertexcount, type, offset);
           gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length/3);
         }
+    }
+    setPosition(pos) {
+        this.position = pos;
     }
 };

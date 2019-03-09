@@ -6,15 +6,15 @@ class Kutta {
 
         this.runningCycle = 0;
 
-        this.head = new Cube(0.08,0.08,0.08, [1.0,0,0,1.0],gl);
+        this.head = new Cube(0.08,0.08,0.08, [186/256.0, 89/256.0, 0/256.0,1.0],gl);
 
-        this.torso = new Cube(0.04,0.04,0.04, [1.0,0,0,1.0], gl);
+        this.torso = new Cube(0.04,0.04,0.04, [186/256.0, 89/256.0, 0/256.0,1.0], gl);
 
-        this.legR = new Cube(0.03,0.01,0.05, [1.0,0,0,1.0],gl);
-        this.legL = new Cube(0.03,0.01,0.05, [1.0,0,0,1.0],gl);
+        this.legR = new Cube(0.03,0.01,0.05, [30/256.0, 14/256.0, 0/256.0,1.0],gl);
+        this.legL = new Cube(0.03,0.01,0.05, [30/256.0, 14/256.0, 0/256.0,1.0],gl);
 
-        this.handR = new Cube(0.02,0.02,0.02, [1.0,0,0,1.0],gl);
-        this.handL = new Cube(0.02,0.02,0.02, [1.0,0,0,1.0],gl);
+        this.handR = new Cube(0.02,0.02,0.02, [30/256.0, 14/256.0, 0/256.0,1.0],gl);
+        this.handL = new Cube(0.02,0.02,0.02, [30/256.0, 14/256.0, 0/256.0,1.0],gl);
 
         this.torso.setPosition([0,0.05,-0.1]);
         this.handR.setPosition([0.05,0.0,-0.1]);

@@ -1,16 +1,11 @@
-class Player {
+class Police {
     constructor(gl) {
-        this.collision = 0;
-        this.position = [0,0,0];
+        this.position = [0,0,0.2];
         this.velocity = [0,0,0];
         this.lane = 0;
-        this.superjump = false;
-        this.jumpval = 0.048;
-        this.jumpstart = 0;
-        this.score = 0;
 
         this.runningCycle = 0;
-        this.torso = new Cube(0.04,0.04,0.04, [107/256.0, 255/256.0, 255/256.0, 1.0], gl);
+        this.torso = new Cube(0.08,0.08,0.08, [107/256.0, 255/256.0, 255/256.0, 1.0], gl);
         this.torso.ambientStrength = 0.5;
         this.torso.directionalStrength = 0.7;
 
@@ -29,7 +24,7 @@ class Player {
         this.legR.ambientStrength = 0.5;
         this.legR.directionalStrength = 0.7;
 
-        this.head = new Cube(0.08,0.08,0.08, [255/256.0, 207/256.0, 145/256.0, 1.0],gl);
+        this.head = new Cube(0.06,0.06,0.06, [255/256.0, 207/256.0, 145/256.0, 1.0],gl);
         this.head.ambientStrength = 0.5;
         this.head.directionalStrength = 0.7;
 
@@ -41,14 +36,6 @@ class Player {
         this.head.setPosition([0,0.18,0]);
     }
     tick() {
-        // console.log(this.jumpval);
-        this.jumpstart += 1;
-        // var d = new Date();
-        // console.log(d.getTime() - this.jumpstart.getTime());
-        if(this.jumpstart > 25) {
-            this.jumpval = 0.048;
-            // this.jumpstart = 0;
-        }
         if(this.lane == 0) {
             if(this.position[0] > 0) {
                 this.position[0] -= 0.02;
@@ -84,7 +71,7 @@ class Player {
         this.position[1] = Math.max(this.position[1],0);
         this.position[2] -= 0.02;
         const PI = 3.14159265359; 
-        this.runningCycle += 0.4;
+        this.runningCycle += 0.3;
         var t = this.runningCycle;
 
         t = t % (2*PI);

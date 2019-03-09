@@ -14,6 +14,8 @@ class Train {
         this.textureCoord = ret.texturesObj;
         this.normals = ret.normalsObj;
         this.colors = ret.colorsObj;
+        this.setMe = false;
+
 
         this.vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
