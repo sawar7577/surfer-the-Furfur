@@ -10,6 +10,7 @@ class Player {
         this.jetstart = 0;
         this.score = 0;
         this.onTrain = false;
+        this.slowstart = 0;
 
         this.runningCycle = 0;
         this.torso = new Cube(0.04,0.04,0.04, [107/256.0, 255/256.0, 255/256.0, 1.0], gl);
@@ -24,12 +25,20 @@ class Player {
         this.handR.directionalStrength = 0.7;
 
 
-        this.legR = new Cube(0.03,0.01,0.05, [43/256.0, 26/256.0, 56/256.0,1.0],gl);
-        this.legL = new Cube(0.03,0.01,0.05, [43/256.0, 26/256.0, 56/256.0,1.0],gl);
+        this.legR = new Cube(0.033,0.013,0.053, [43/256.0, 26/256.0, 56/256.0,1.0],gl);
+        this.legL = new Cube(0.033,0.013,0.053, [43/256.0, 26/256.0, 56/256.0,1.0],gl);
+        this.bootR = new Cube(0.043,0.023,0.063, [0.828125, 0.68359375, 0.21484375,1.0],gl);
+        this.bootL = new Cube(0.043,0.023,0.063, [0.828125, 0.68359375, 0.21484375,1.0],gl);
+
         this.legL.ambientStrength = 0.5;
         this.legL.directionalStrength = 0.7;
         this.legR.ambientStrength = 0.5;
         this.legR.directionalStrength = 0.7;
+
+        this.bootL.ambientStrength = 0.5;
+        this.bootL.directionalStrength = 0.7;
+        this.bootR.ambientStrength = 0.5;
+        this.bootR.directionalStrength = 0.7;
 
         this.head = new Cube(0.08,0.08,0.08, [255/256.0, 207/256.0, 145/256.0, 1.0],gl);
         this.head.ambientStrength = 0.5;
@@ -47,14 +56,17 @@ class Player {
         if(this.onTrain == true) {
             mn = 0.4;
         }
-     
         this.jumpstart += 1;
         this.jetstart += 1;
-
+        this.slowstart += 1;
         
 
-        if(this.jumpstart > 25) {
+        if(this.jumpstart > 125) {
             this.jumpval = 0.048;
+        }
+        if(this.jetstart < 125) {
+            // this.jetstart = 0.048;
+            mn = 0.8;
         }
         if(this.lane == 0) {
             if(this.position[0] > 0) {
@@ -92,6 +104,9 @@ class Player {
         this.position[2] -= 0.02;
         const PI = 3.14159265359; 
         this.runningCycle += 0.4;
+        if(this.jetstart < 125) {
+            this.runningCycle += 0.6;
+        }
         var t = this.runningCycle;
 
         t = t % (2*PI);
@@ -136,6 +151,10 @@ class Player {
         this.handR.position[1] = this.position[1] + 0.1;
         this.handR.position[0] = this.position[0] + 0.05;
 
+        this.bootL.position = this.legL.position;
+        this.bootR.position = this.legR.position;
+        this.bootL.rotation = this.legL.rotation;
+        this.bootR.rotation = this.legR.rotation;
     }
 
     draw(projectionMatrix, viewMatrix, gl, programInfo) {
@@ -145,6 +164,11 @@ class Player {
         this.handL.draw(projectionMatrix, viewMatrix, gl, programInfo);
         this.legR.draw(projectionMatrix, viewMatrix, gl, programInfo);
         this.legL.draw(projectionMatrix, viewMatrix, gl, programInfo);
+        if(this.jumpstart < 125) {
+            this.bootR.draw(projectionMatrix, viewMatrix, gl, programInfo);
+            this.bootL.draw(projectionMatrix, viewMatrix, gl, programInfo);
+        }
+    
     }
 
     move(flag) {

@@ -147,7 +147,7 @@ function main() {
 
   var trains = [];
   trains.push(new Train(gl));
-  trains.push(new Train(gl));
+  // trains.push(new Train(gl));
   trains.push(new Train(gl));
 
   var fences = [];
@@ -301,10 +301,6 @@ function main() {
         coins[i].draw(projectionMatrix, viewMatrix, gl,programInfoT);
         coins[i].tick();
       }
-  
-
-      // cn.draw(projectionMatrix, viewMatrix,gl,programInfoT);
-      // cn.tick();
       
       shaderC.attachShaderProgram(gl);
       
@@ -330,30 +326,31 @@ function main() {
       collisionRocket(pl, rockets);
       collisionFence(pl, fences);
       collisionTrain(pl, trains);
+      // collisionTree(pl, trees);
 
 
       placeTrain(trains, pl.position);
       placeFence(fences, pl.position);
       placeBoot(boots, pl.position);
       placeRocket(rockets, pl.position);
-      // placeTree(trees, pl.position);
+      placeTree(trees, pl.position);
       placeCoin(coins, pl.position);
       tickSprites(rockets);
       tickSprites(boots);
-      // tickSprites(trains);
+      tickSprites(trains);
       drawSprites(trains, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(fences, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(boots, projectionMatrix, viewMatrix, gl,programInfoC);
-      // for(var i = 0 ; i < boots.length ; ++i) {
-        // boots[i].box.draw(projectionMatrix, viewMatrix, gl, programInfoC);
-      // }
       drawSprites(rockets, projectionMatrix, viewMatrix, gl,programInfoC);
       // drawSprites(trees,  projectionMatrix, viewMatrix, gl,programInfoC);
+      kt.lane = pl.lane;
+      pol.lane = pl.lane;
       kt.tick();
       kt.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       pl.tick();
       pl.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       pol.tick();
+      pol.position[2] = pl.position[2] + pl.slowstart*0.01;
       pol.draw(projectionMatrix, viewMatrix, gl, programInfoC);
       
       requestAnimationFrame(render);
@@ -462,14 +459,18 @@ function placeTree(lst, pos) {
   var amp = 16;
     for(var i = 0 ; i < lst.length ; i+=1) {
         var rand = Math.random();
+        var lane = 0;
         if(lst[i].position[2] > pos[2]+3) {
           if(rand <= 0.5) {
             rand = -0.15;
+            lane = -1;
           }
           else {
             rand = 0.15
+            lane = 1;
           }
           lst[i].setPosition([rand,0.0,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].lane = lane;
         }
     }
 }
@@ -604,7 +605,7 @@ function collisionRocket(playa, lst) {
             lane = 1;
           }
         var amp = 16;
-        this.jetstart = 0;
+        playa.jetstart = 0;
         playa.collision += 1;
           lst[i].setPosition([rand,0.18,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
@@ -638,6 +639,7 @@ function collisionFence(playa, lst) {
           }
         var amp = 16;
         playa.collision += 1;
+        playa.slowstart = 5;
           lst[i].setPosition([rand,0.1,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
         }
@@ -659,6 +661,51 @@ function collisionTrain(playa, lst) {
           playa.onTrain = false;
         }
       }
+
+    }
+    if(playa.position[2] < lst[i].position[2] && playa.position[2] > lst[i].position[2]-2){
+      if(playa.lane == lst[i].lane){
+        if(playa.lane == 0) {
+          if(playa.position[0] > 0.2) {
+            playa.lane =1;
+            playa.slowstart = 5;
+          }
+          if(playa.position[0] < -0.2) {
+            playa.lane = -1;
+            playa.slowstart = 5;
+
+          }
+        }
+        else if(playa.lane == 1) {
+          if(playa.position[0] < 0.2) {
+            playa.lane =0;
+            playa.slowstart = 5;
+
+          }
+        }
+        else if(playa.lane == -1) {
+          if(playa.position[0] > -0.2) {
+            playa.lane =0;
+            playa.slowstart = 5;
+
+          }
+        }
+      }
+    }
+    }
+  }
+}
+
+function collisionTree(playa, lst) {
+  for(var i = 0 ; i < lst.length ; i+=1) {
+    if(Math.abs(playa.position[0] - lst[i].position[0]) < 0.09 ){
+      if(Math.abs(playa.position[2] - lst[i].position[2]) < 0.3) {
+      if(playa.position[1] < 0.03) {
+        if(lst[i].lane != 0) {
+        lst[i].lane = 0;
+        playa.slowstart = 5;
+      }
+    }
     }
     }
   }

@@ -12,6 +12,7 @@ class Tree {
         this.normals = ret.normalsObj;
         this.colors = ret.colorsObj;
         this.setMe = false;
+        this.lane = 0;
 
 
         this.vertexBuffer = gl.createBuffer();
