@@ -175,6 +175,11 @@ function main() {
   jugaads.push(new Jugaad(gl));
   jugaads.push(new Jugaad(gl));
 
+  var stars = [];
+  stars.push(new Star(gl));
+  stars.push(new Star(gl));
+
+
   for(var i = 0 ; i < jugaads.length ; i+=1) {
     jugaads[i].setPosition([0,0,-2]);
   }
@@ -184,6 +189,7 @@ function main() {
   var pl = new Player(gl);
   var pol = new Police(gl);
   var kt = new Kutta(gl);
+  var st = new Star(gl);
   
   const fieldOfView = 45 * Math.PI / 180;   // in radians
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
@@ -339,6 +345,8 @@ function main() {
       collisionTrain(pl, trains);
       collisionTree(pl, trees);
       collisionJugaad(pl, jugaads);
+      collisionStar(pl, stars);
+
 
 
       placeTrain(trains, pl.position);
@@ -348,14 +356,20 @@ function main() {
       placeTree(trees, pl.position);
       placeCoin(coins, pl.position);
       placeJugaad(jugaads, pl.position);
+      placeStar(stars, pl.position);
+
       tickSprites(rockets);
       tickSprites(boots);
       tickSprites(trains);
+      tickSprites(stars);
+
       drawSprites(trains, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(fences, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(boots, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(rockets, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(trees,  projectionMatrix, viewMatrix, gl,programInfoC);
+      drawSprites(stars,  projectionMatrix, viewMatrix, gl,programInfoC);
+
       kt.lane = pl.lane;
       pol.lane = pl.lane;
       kt.tick();
@@ -365,7 +379,7 @@ function main() {
       pol.tick();
       pol.position[2] = pl.position[2] + pl.slowstart*0.01;
       pol.draw(projectionMatrix, viewMatrix, gl, programInfoC);
-      
+      // drawColor(st,  projectionMatrix, viewMatrix, gl,programInfoC);
       requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
@@ -519,6 +533,37 @@ function placeCoin(lst, pos) {
     }
 }
 
+function placeStar(lst, pos) {
+  var amp = 32;
+    for(var i = 0 ; i < lst.length ; i+=1) {
+        var rand = Math.random();
+        var lane = 0;
+        if(lst[i].position[2] > pos[2]+3) {
+          if(rand <= 0.3) {
+            rand = -0.3;
+            lane = -1;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+            lane = 0;
+          }
+          else {
+            rand = 0.3;
+            lane = 1;
+          }
+          var rand2 = Math.random();
+          if(rand2 < 0.5) {
+           rand2 = 0; 
+          }
+          else {
+            rand2 = pos[1];
+          }
+          lst[i].setPosition([rand,0.12,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].lane = lane;
+        }
+    }
+}
+
 function placeJugaad(lst, pos) {
   var amp = 32;
     for(var i = 0 ; i < lst.length ; i+=1) {
@@ -612,7 +657,37 @@ function collisionCoin(playa, lst) {
         playa.collision += 1;
           lst[i].setPosition([rand,0.2,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
-          playa.score += 1;
+          playa.score += 1*playa.mult;
+      }
+    }
+    }
+  }
+}
+function collisionStar(playa, lst) {
+  for(var i = 0 ; i < lst.length; i+=1) {
+    if(playa.lane == lst[i].lane) {
+      if(Math.abs(playa.position[2] - lst[i].position[2]) < 0.03) {
+        if(Math.abs(playa.position[1]+0.12 - lst[i].position[1]) < 0.03) {
+        var rand = Math.random();  
+        var lane = 0;
+          if(rand <= 0.3) {
+            rand = -0.3;
+            lane = -1;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+            lane = 0;
+          }
+          else {
+            rand = 0.3;
+            lane = 1;
+          }
+        var amp = 16;
+        playa.collision += 1;
+          lst[i].setPosition([rand,0.2,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
+          lst[i].lane = lane;
+          // playa.score += 1;
+          playa.multstart = 0;
       }
     }
     }

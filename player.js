@@ -12,8 +12,10 @@ class Player {
         this.score = 0;
         this.onTrain = false;
         this.slowstart = 0;
+        this.multstart = 0;
         this.playerlife = 2;
         this.startframes = 0;
+        this.mult = 1;
 
         this.runningCycle = 0;
         this.torso = new Cube(0.04,0.04,0.04, [107/256.0, 255/256.0, 255/256.0, 1.0], gl);
@@ -63,6 +65,7 @@ class Player {
         this.jumpstart += 1;
         this.jetstart += 1;
         this.slowstart += 1;
+        this.multstart += 1;
         
 
         if(this.jumpstart > 125) {
@@ -70,6 +73,12 @@ class Player {
         }
         if(this.jetstart < 225) {
             mn = 0.8;
+        }
+        if(this.multstart > 125) {
+            this.mult = 1;
+        }
+        else {
+            this.mult = 2;
         }
         if(this.lane == 0) {
             if(this.position[0] > 0) {
