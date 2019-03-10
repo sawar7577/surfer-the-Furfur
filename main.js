@@ -157,12 +157,12 @@ function main() {
 
   var boots = [];
   boots.push(new Boot(gl));
-  // boots.push(new Boot(gl));
+  boots.push(new Boot(gl));
   // boots.push(new Boot(gl));
 
   var rockets = [];
   rockets.push(new Rocket(gl));
-  rockets.push(new Rocket(gl));
+  // rockets.push(new Rocket(gl));
   rockets.push(new Rocket(gl));
 
   var trees = [];
@@ -170,6 +170,14 @@ function main() {
   trees.push(new Tree(gl));
   trees.push(new Tree(gl));
 
+  var jugaads = [];
+  jugaads.push(new Jugaad(gl));
+  jugaads.push(new Jugaad(gl));
+  jugaads.push(new Jugaad(gl));
+
+  for(var i = 0 ; i < jugaads.length ; i+=1) {
+    jugaads[i].setPosition([0,0,-2]);
+  }
 
   var tr = new RailTracks(gl);
   var wl = new Walls(gl);
@@ -189,7 +197,7 @@ function main() {
                   zNear,
                   zFar);
 
-  var eye = [0.0, 0.6, 2.2]
+  var eye = [0.0, 0.6, 2.0]
   var center = [0, 0.3, 0]
   var up = [0, 1, 0]
   
@@ -197,6 +205,10 @@ function main() {
   var fst = fsTSource;
   // Draw the scene repeatedly
   function render() {
+    if(pl.playerlife == 0) {
+      alert("gameover");
+    }
+    document.getElementById("score").innerHTML = pl.score;
     
     // console.log(pl.position[2]);
     Mousetrap.bind('left', function() {
@@ -226,15 +238,12 @@ function main() {
       }
     });
     
-    Mousetrap.bind('up', function() {
+    Mousetrap.bind('space', function() {
       // pl.position[0] -= 0.3;
+      if(pl.jumpflag == true)
       pl.velocity[1] = pl.jumpval;
     });
     
-    
-    Mousetrap.bind('down', function() {
-      pl.position[0] += 0.3;
-    });
     
     Mousetrap.bind('g', function() {
       if(fs == fsSourceGray) {
@@ -257,9 +266,8 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     var viewMatrix = mat4.create();
-    eye[2] -= 0.02;
-    center[2] -= 0.02;
-    // tt.position[2] -= 0.03;
+    eye[2] -= 0.03;
+    center[2] -= 0.03;
     mat4.lookAt(viewMatrix,
       eye,
       center,
@@ -292,6 +300,9 @@ function main() {
       // trn.draw(projectionMatrix, viewMatrix, gl,programInfoT);      
       tr.draw(projectionMatrix, viewMatrix, gl,programInfoT);
       wl.draw(projectionMatrix, viewMatrix, gl,programInfoT);
+      for(var i = 0 ; i < jugaads.length; i+=1) {
+        jugaads[i].draw(projectionMatrix, viewMatrix, gl,programInfoT);
+      }
 
       // drawTexture(fn, projectionMatrix, viewMatrix, gl,programInfoT);
 
@@ -326,7 +337,8 @@ function main() {
       collisionRocket(pl, rockets);
       collisionFence(pl, fences);
       collisionTrain(pl, trains);
-      // collisionTree(pl, trees);
+      collisionTree(pl, trees);
+      collisionJugaad(pl, jugaads);
 
 
       placeTrain(trains, pl.position);
@@ -335,6 +347,7 @@ function main() {
       placeRocket(rockets, pl.position);
       placeTree(trees, pl.position);
       placeCoin(coins, pl.position);
+      placeJugaad(jugaads, pl.position);
       tickSprites(rockets);
       tickSprites(boots);
       tickSprites(trains);
@@ -342,7 +355,7 @@ function main() {
       drawSprites(fences, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(boots, projectionMatrix, viewMatrix, gl,programInfoC);
       drawSprites(rockets, projectionMatrix, viewMatrix, gl,programInfoC);
-      // drawSprites(trees,  projectionMatrix, viewMatrix, gl,programInfoC);
+      drawSprites(trees,  projectionMatrix, viewMatrix, gl,programInfoC);
       kt.lane = pl.lane;
       pol.lane = pl.lane;
       kt.tick();
@@ -359,7 +372,7 @@ function main() {
   }
 
   function placeTrain(lst, pos) {
-    var amp = 16;
+    var amp = 32;
     for(var i = 0 ; i < lst.length ; i+=1) {
         var rand = Math.random();
         var lane = 0;
@@ -376,14 +389,14 @@ function main() {
             rand = 0.3;
             lane = 1;
           }
-          lst[i].setPosition([rand,0,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].setPosition([rand,0,Math.min(pos[2]-10,pos[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
         }
     }
 }
 
 function placeFence(lst, pos) {
-  var amp = 16;
+  var amp = 32;
     for(var i = 0 ; i < lst.length ; i+=1) {
         var rand = Math.random();
         var lane = 0;
@@ -400,14 +413,14 @@ function placeFence(lst, pos) {
             rand = 0.3
             lane = 1;
           }
-          lst[i].setPosition([rand,0.1,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].setPosition([rand,0.1,Math.min(pos[2]-10,pos[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
         }
     }
 }
 
 function placeBoot(lst, pos) {
-  var amp = 4;
+  var amp = 32;
     for(var i = 0 ; i < lst.length ; i+=1) {
         var rand = Math.random();
         var lane = 0;
@@ -424,7 +437,7 @@ function placeBoot(lst, pos) {
             rand = 0.3
             lane = 1;
           }
-          lst[i].setPosition([rand,0.18,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].setPosition([rand,0.18,Math.min(pos[2]-10,pos[2] - amp*Math.random()) ]);
           lst[i].box.setPosition(lst[i].position);
           lst[i].lane = lane;
         }
@@ -432,7 +445,7 @@ function placeBoot(lst, pos) {
 }
 
 function placeRocket(lst, pos) {
-  var amp = 16;
+  var amp = 48;
     for(var i = 0 ; i < lst.length ; i+=1) {
         var rand = Math.random();
         var lane = 0;
@@ -449,14 +462,14 @@ function placeRocket(lst, pos) {
             rand = 0.3;
             lane = 1;
           }
-          lst[i].setPosition([rand,0.18,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].setPosition([rand,0.18,Math.min(pos[2]-20,pos[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
         }
     }
 }
 
 function placeTree(lst, pos) {
-  var amp = 16;
+  var amp = 48;
     for(var i = 0 ; i < lst.length ; i+=1) {
         var rand = Math.random();
         var lane = 0;
@@ -469,7 +482,7 @@ function placeTree(lst, pos) {
             rand = 0.15
             lane = 1;
           }
-          lst[i].setPosition([rand,0.0,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].setPosition([rand,0.0,Math.min(pos[2]-10,pos[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
         }
     }
@@ -493,7 +506,38 @@ function placeCoin(lst, pos) {
             rand = 0.3;
             lane = 1;
           }
-          lst[i].setPosition([rand,0.2,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          var rand2 = Math.random();
+          if(rand2 < 0.5) {
+           rand2 = 0; 
+          }
+          else {
+            rand2 = pos[1];
+          }
+          lst[i].setPosition([rand,rand2+0.2,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
+          lst[i].lane = lane;
+        }
+    }
+}
+
+function placeJugaad(lst, pos) {
+  var amp = 32;
+    for(var i = 0 ; i < lst.length ; i+=1) {
+        var rand = Math.random();
+        var lane = 0;
+        if(lst[i].position[2] > pos[2]+3) {
+          if(rand <= 0.3) {
+            rand = -0.3;
+            lane = -1;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+            lane = 0;
+          }
+          else {
+            rand = 0.3;
+            lane = 1;
+          }
+          lst[i].setPosition([rand,0,Math.min(pos[2]-4,pos[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
         }
     }
@@ -515,12 +559,9 @@ function tickSprites(lst) {
 function collisionBoot(playa, lst) {
   for(var i = 0 ; i < lst.length; i+=1) {
     if(playa.lane == lst[i].lane) {
-    // if(Math.abs(playa.position[0] - lst[i].position[0]) < 0.0003 ) {
-
-      // console.log("collison");
       if(Math.abs(playa.position[2] - lst[i].position[2]) < 0.03 ) {
         if(Math.abs(playa.position[1]+0.18 - lst[i].position[1]  ) < 0.03 ) {
-        console.log(playa.collision, lst[i].lane);
+        // console.log(playa.collision, lst[i].lane);
         var rand = Math.random();  
         var lane;
         if(rand <= 0.3) {
@@ -549,14 +590,10 @@ function collisionBoot(playa, lst) {
 }
 
 function collisionCoin(playa, lst) {
-  // console.log(playa.score);
   for(var i = 0 ; i < lst.length; i+=1) {
     if(playa.lane == lst[i].lane) {
-      // console.log("collison");
       if(Math.abs(playa.position[2] - lst[i].position[2]) < 0.03) {
         if(Math.abs(playa.position[1]+0.2 - lst[i].position[1]) < 0.03) {
-
-        // console.log(playa.collision, lst[i].lane);
         var rand = Math.random();  
         var lane = 0;
           if(rand <= 0.3) {
@@ -585,11 +622,10 @@ function collisionCoin(playa, lst) {
 function collisionRocket(playa, lst) {
   for(var i = 0 ; i < lst.length; i+=1) {
     if(playa.lane == lst[i].lane) {
-      // console.log("collison");
       if(Math.abs(playa.position[2] - lst[i].position[2]) < 0.03) {
         if(Math.abs(playa.position[1]+0.18 - lst[i].position[1]) < 0.03) {
 
-        console.log(playa.collision, lst[i].lane);
+        // console.log(playa.collision, lst[i].lane);
         var rand = Math.random();  
         var lane = 0;
           if(rand <= 0.3) {
@@ -618,11 +654,46 @@ function collisionRocket(playa, lst) {
 function collisionFence(playa, lst) {
   for(var i = 0 ; i < lst.length; i+=1) {
     if(playa.lane == lst[i].lane) {
-      // console.log("collison");
       if(Math.abs(playa.position[2] - lst[i].position[2]) < 0.03) {
         if(Math.abs(playa.position[1]+0.1 - lst[i].position[1]) < 0.03) {
 
-        console.log(playa.collision, lst[i].lane);
+        // console.log(playa.collision, lst[i].lane);
+        var rand = Math.random();  
+        var lane = 0;
+          if(rand <= 0.3) {
+            rand = -0.3;
+            lane = -1;
+          }
+          else if (rand <= 0.6) {
+            rand = 0;
+            lane = 0;
+          }
+          else {
+            rand = 0.3;
+            lane = 1;
+          }
+        var amp = 16;
+        playa.collision += 1;
+
+        if(playa.slowstart < 100) {
+          playa.playerlife = 0;
+        }
+        playa.slowstart = 5;
+          lst[i].setPosition([rand,0.1,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
+          lst[i].lane = lane;
+        }
+      }
+    }
+  }
+}
+
+function collisionJugaad(playa, lst) {
+  for(var i = 0 ; i < lst.length; i+=1) {
+    if(playa.lane == lst[i].lane) {
+      if(Math.abs(playa.position[2] - lst[i].position[2]) < 0.03) {
+        if(Math.abs(playa.position[1] - lst[i].position[1]) < 0.03) {
+
+        // console.log(playa.collision, lst[i].lane);
         var rand = Math.random();  
         var lane = 0;
           if(rand <= 0.3) {
@@ -640,7 +711,8 @@ function collisionFence(playa, lst) {
         var amp = 16;
         playa.collision += 1;
         playa.slowstart = 5;
-          lst[i].setPosition([rand,0.1,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
+        playa.playerlife = 0;
+          lst[i].setPosition([rand,0,Math.min(playa.position[2]-4,playa.position[2] - amp*Math.random()) ]);
           lst[i].lane = lane;
         }
       }
@@ -663,35 +735,57 @@ function collisionTrain(playa, lst) {
       }
 
     }
-    if(playa.position[2] < lst[i].position[2] && playa.position[2] > lst[i].position[2]-2){
-      if(playa.lane == lst[i].lane){
-        if(playa.lane == 0) {
-          if(playa.position[0] > 0.2) {
-            playa.lane =1;
-            playa.slowstart = 5;
-          }
-          if(playa.position[0] < -0.2) {
-            playa.lane = -1;
-            playa.slowstart = 5;
-
-          }
-        }
-        else if(playa.lane == 1) {
-          if(playa.position[0] < 0.2) {
-            playa.lane =0;
-            playa.slowstart = 5;
-
-          }
-        }
-        else if(playa.lane == -1) {
-          if(playa.position[0] > -0.2) {
-            playa.lane =0;
-            playa.slowstart = 5;
-
+    if(Math.abs(playa.position[0] - lst[i].position[0]) < 0.03) {
+      if(playa.position[2] <= lst[i].position[2]) {
+        if(playa.position[2] >= lst[i].position[2]-2) {
+          if(playa.position[1] == 0) {
+            playa.playerlife = 0;
           }
         }
       }
     }
+    if(playa.position[1] < 0.4) {  
+        if(playa.position[2] < lst[i].position[2] && playa.position[2] > lst[i].position[2]-2){
+          if(playa.lane == lst[i].lane){
+            if(playa.lane == 0) {
+              if(playa.position[0] > 0.2) {
+                playa.lane =1;
+                playa.slowstart = 5;
+              }
+              if(playa.position[0] < -0.2) {
+                playa.lane = -1;
+
+                if(playa.slowstart < 100) {
+                  playa.playerlife = 0;
+                }
+                playa.slowstart = 5;
+
+              }
+            }
+            else if(playa.lane == 1) {
+              if(playa.position[0] < 0.2) {
+                playa.lane =0;
+                if(playa.slowstart < 100) {
+                  playa.playerlife = 0;
+                }
+                playa.slowstart = 5;
+
+              }
+            }
+            else if(playa.lane == -1) {
+              if(playa.position[0] > -0.2) {
+                playa.lane =0;
+
+                if(playa.slowstart < 100) {
+                  playa.playerlife = 0;
+                }
+                playa.slowstart = 5;
+
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -703,6 +797,10 @@ function collisionTree(playa, lst) {
       if(playa.position[1] < 0.03) {
         if(lst[i].lane != 0) {
         lst[i].lane = 0;
+
+        if(playa.slowstart < 100) {
+          playa.playerlife = 0;
+        }
         playa.slowstart = 5;
       }
     }

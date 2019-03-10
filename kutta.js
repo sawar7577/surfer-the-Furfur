@@ -57,7 +57,7 @@ class Kutta {
         this.velocity[1] = this.velocity[1] - 0.004;
         // this.position[1] += this.velocity[1];
         // this.position[1] = Math.max(this.position[1],0);
-        this.position[2] -= 0.02;
+        this.position[2] -= 0.03;
         const PI = 3.14159265359; 
         this.runningCycle += 0.2;
         var t = this.runningCycle;

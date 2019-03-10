@@ -22,7 +22,7 @@ class RailTracks {
     }
   }
   tick(pos,gl) {
-    if(this.tracks[0].position[2] - pos[2] > 1) {
+    if(this.tracks[0].position[2] - pos[2] > 2) {
       this.tracks.shift();
       this.tracks.shift();
       this.tracks.shift();

@@ -14,7 +14,7 @@
     }
     tick(pos,gl) {
       this.cnt += 0.2;
-      if(this.walls[0].position[2] - pos[2] > 1) {
+      if(this.walls[0].position[2] - pos[2] > 2) {
         this.walls.shift();
         this.walls.shift();
 
